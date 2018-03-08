@@ -4,7 +4,6 @@ from findQ2 import findQ
 from fractions import Fraction
 import math
 
-
 total_num_exceptions = 0
 
 
@@ -12,7 +11,8 @@ def find_exceptions(s, d, stat_map):
     pattern_found = False
     start_k = 1
     exceptions = {}
-    for k in range(1,15):
+    range_end = int((100 - d) / s) + 1
+    for k in range(1, range_end):
         m = s * k + d
         q, q_type = findQ(m, s, False)
         if q_type == 'FC' and q != Fraction(1, 3):
@@ -20,35 +20,42 @@ def find_exceptions(s, d, stat_map):
                 pattern_found = True
                 start_k = k
         elif q_type == 'FC' and q == Fraction(1, 3):
-            exceptions[Fraction(m,s)] = (q, 'fc-exception')
+            exceptions[Fraction(m,s)] = (q, r'FC-exception')
             stat_map['total'] += 1
             stat_map['1/3'] += 1
             if math.ceil(2 * m / s) == 3:
                 stat_map['V3'] += 1
+        elif q_type == 'BM':
+            exceptions[Fraction(m, s)] = (q, 'BM-exception')
+            stat_map['BM'] += 1
         else:
-            exceptions[Fraction(m,s)] = (q, 'int-exception')
+            exceptions[Fraction(m, s)] = (q, 'INT-exception')
             stat_map['int'] += 1
             stat_map['total'] += 1
             if q == Fraction(1, 3):
                 stat_map['1/3'] += 1
             if math.ceil(2 * m / s) == 3:
                 stat_map['V3'] += 1
+    if not pattern_found:
+        start_k = k
     return exceptions, start_k
 
 
 def create_appendix(stat_map):
     doc = Document('Appendixx')
     doc.append(NoEscape(r'\appendix'))
-    with doc.create(Section(NoEscape('Appendix F: Conjectures for $s=7$ to 60'))):
-        for s in range(7,61):
+    with doc.create(Section(NoEscape('Appendix F: Conjectures for $s=3$ to 50'))):
+        for s in range(3, 51):
+            print('s: ', s)
             exceptions_list = [({}, 0)]
             num_exceptions = 0
             for k in range(1, s):
+                print('k: ', k)
                 exceptions, start_k = find_exceptions(s, k, stat_map)
                 num_exceptions += len(exceptions)
                 exceptions_list.append((exceptions, start_k))
             doc.append(NoEscape(r'\begin{conjecture}\label{co:' + str(s) + r'}'))
-            doc.append(NoEscape(r'If $m=' + str(s) + r'k+i$ where $0\le i\le 6$ then $f(m,' + str(s)
+            doc.append(NoEscape(r'If $m=' + str(s) + r'k+i$ where $0\le i\le ' + str(s - 1) + '$ then $f(m,' + str(s)
                                 + r')$ depends only on $k,i$ via a formula, given below'))
             if num_exceptions == 0:
                 doc.append('.')
@@ -69,7 +76,6 @@ def create_appendix(stat_map):
                                         r'$ with $k\ge ' + str(start_k) + r'$. Then $f(' +
                                         str(s) + 'k+' + str(i) + ',' + str(s) + ')=' + pattern_frac + '$.'))
                     if len(exceptions) != 0:
-
                         exp_str = ' (Exception: '
                         for exp in exceptions.keys():
                             q, exp_type = exceptions[exp]
@@ -83,6 +89,6 @@ def create_appendix(stat_map):
 
 
 if __name__ == '__main__':
-    stat_map = {'total': 0, 'V3': 0, 'int': 3, '1/3': 0}
+    stat_map = {'total': 0, 'V3': 0, 'int': 3, '1/3': 0, 'BM': 0}
     create_appendix(stat_map)
     print(stat_map)

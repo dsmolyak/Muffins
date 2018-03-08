@@ -1,6 +1,7 @@
 from fractions import Fraction
 import math
 import FloorCeiling
+from JacobPrograms import BuddyMatch
 
 
 def calcSv(m, s):
@@ -242,7 +243,7 @@ def findQ(m, s, printQs):
     if sv1 == 0:
         ANS = 1  # max(Fraction(1, 3), Fraction(m, s * (V + 1)), 1 - Fraction(m, s * (V - 2)))
         Q_type = 'N/A'
-
+        Q = 1
     else:
         Q1 = calcQ1(m, s, V, sv, sv1)
         Q2 = calcQ2(m, s, V, sv, sv1)
@@ -268,19 +269,22 @@ def findQ(m, s, printQs):
 
         setQ = [Q1, Q2, Q3, Q4, Q5, Q6, Q7, Q8, Q9, Q10]
         Q = min(setQ)
+
         Q_type = ''
         if Q == 1:
             Q = 1
             Q_type = 'N/A'
         else:
             Q_type = 'Q' + str(setQ.index(Q) + 1)
-        ANS = max(Fraction(1, 3), Fraction(m, s * (V + 1)), 1 - Fraction(m, s * (V - 2)), Q)
+        Q = max(Fraction(1, 3), Fraction(m, s * (V + 1)), 1 - Fraction(m, s * (V - 2)), Q)
 
     FC = FloorCeiling.floor_ceiling(m, s)
     if printQs:
         print('FC: ' + str(FC))
-    ANS = FC if FC <= ANS else ANS
-    ANS_type = 'FC' if ANS == FC else Q_type
+    BM = BuddyMatch.f(m, s)
+    results = [FC, Q, BM]
+    ANS = min(results)
+    ANS_type = 'FC' if ANS == FC else Q_type if ANS == Q else 'BM'
 
     return ANS, ANS_type
 
@@ -294,20 +298,8 @@ def calcSet(m, s, V, Q):
 
 
 if __name__ == '__main__':
-    # m = 283
-    # s = 60
-    # Q, ANS_type = findQ(m, s, True)
-    # print('Q: ' + str(Q))
-    # print('Min type: ' + ANS_type)
-    #
-    # V = math.ceil(2 * m / s)
-
-    unused_qs = ['Q3', 'Q4', 'Q5', 'Q6']
-    for s in range(7, 60):
-        for m in range(s + 1, 100):
-            Q, ANS_type = findQ(m, s, False)
-            if ANS_type in unused_qs:
-                print('Q: ' + str(Q))
-                print('Min type: ' + ANS_type)
-
-    # print(calcSet(m, s, V, Q))
+    m = 48
+    s = 37
+    Q, ANS_type = findQ(m, s, True)
+    print('Q: ' + str(Q))
+    print('Min type: ' + ANS_type)

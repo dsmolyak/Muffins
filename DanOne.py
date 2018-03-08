@@ -83,15 +83,4 @@ def findDanOne(m,s):
 
 if __name__ == '__main__':
     print(findDanOne(36,13))
-    # count = 0
-    # for s in range(5, 50):
-    #     for m in range (s+1, 50):
-    #         QD, type = findDanOne(m, s)
-    #         QI, _ = findQ2.findQ(m,s,False)
-    #         same = QD == QI
-    #         if QD != 1: #and same and type == 'Stat2':
-    #             count += 1
-    #             print('%s, %s, %s, %s, %s' % (str(m), str(s), str(QD), str(QI), str(same)))
-    #             print(type)
-    # print(count)
 
