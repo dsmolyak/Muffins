@@ -54,11 +54,9 @@ def write_file():
                         open_prob = ''
                     else:
                         open_prob = 'Open'
-                        found = False
-                        lb = ans
-                        while not found:
-                            lb = Fraction(lb.numerator * 2 - 1, lb.denominator * 2)
-                            found = Procedures.getProcedures(m, s, lb)
+                        lb = Fraction(ans.numerator - 1, ans.denominator)
+                        lb = lb if lb > Fraction(1, 3) else Fraction(1, 3)
+                        lb, ans = closer_bounds(m, s, lb, ans)
                 except Procedures.TimeoutError:
                     open_prob = 'Timeout'
                 except KeyError:
@@ -82,6 +80,56 @@ def binary_search(m, s, higher, lower):
             higher = mid
 
 
+# define gcd function
+def gcd(x, y):
+    while y:
+        x, y = y, x % y
+
+    return x
+
+
+def lcm(x, y):
+    lcm = (x*y)//gcd(x,y)
+    return lcm
+
+
+def convert_den(lb, ub):
+    lb_num = lb.numerator
+    ub_num = ub.numerator
+    lb_den = lb.denominator
+    ub_den = ub.denominator
+    new_den = lcm(lb_den, ub_den)
+    res_lb = '{0:d}/{1:d}'.format(int(lb_num * (new_den / lb_den)), new_den)
+    res_ub = '{0:d}/{1:d}'.format(int(ub_num * (new_den / ub_den)), new_den)
+    return res_lb, res_ub
+
+
+def closer_bounds(m, s, lb, ub):
+    res_ub = str(ub)
+    res_lb = str(lb)
+    for den in range (5, 200):
+        for num in range(int(den / 3 - 1), int(den / 2 + 1)):
+            curr_frac = Fraction(num, den)
+            if lb < curr_frac < ub:
+                print(curr_frac)
+                try:
+                    if den % s == 0 and Procedures.getProcedures(m, s, curr_frac):
+                        res_lb, res_ub = convert_den(curr_frac, ub)
+                        print(res_lb, res_ub)
+                        lb = curr_frac
+                except Procedures.TimeoutError:
+                    print("no")
+                except KeyError:
+                    print("no")
+    return res_lb, res_ub
+
+
 if __name__ == '__main__':
-    write_file()
+    m = 41
+    s = 19
+    q, _ = f(m, s)
+    lb = Fraction(q.numerator - 1, q.denominator)
+    lb = lb if lb > Fraction(1, 3) else Fraction(1, 3)
+    print("\n" + str(closer_bounds(m, s, lb, q)))
+    # write_file()
     # binary_search(47, 29, Fraction(47, 116), Fraction(93, 232))

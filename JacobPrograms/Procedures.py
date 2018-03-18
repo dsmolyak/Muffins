@@ -12,6 +12,7 @@ from functools import wraps
 import errno
 import os
 import signal
+import fms
 
 
 class TimeoutError(Exception):
@@ -214,7 +215,7 @@ def procedureToString(procedure):
     return '\n'.join(lines)
 
 
-@timeout(30, os.strerror(errno.ETIMEDOUT))
+@timeout(5, os.strerror(errno.ETIMEDOUT))
 def getProcedures(m, s, Q=None, print_proc=False):
     pieces, d = None, None
     if Q == None:
@@ -254,36 +255,21 @@ def try6multiples(upto, start=1):
 
 
 if __name__ == '__main__':
-    m = 85
-    s = 8
+    m = 50
+    s = 41
 
-    Q, ANS_type = findQ2.findQ(m, s, False)
+    Q, ANS_type = fms.f(m, s)
     print('Q: ' + str(Q))
     print('Min type: ' + ANS_type)
 
     blah = time.time()
     try:
-        print(m, s, str(getProcedures(m, s, Q)))
+        # print(m, s, str(getProcedures(m, s, Q)))
+        # print(Fraction(981, 2280))
+        print(getProcedures(m, s, Fraction(44, 123)))
     except TimeoutError:
         print('darn')
     except KeyError:
         print('darn')
-    # print(getProcedures(m, s, Fraction(1, 3)))
     print(time.time() - blah)
-
-
-    # start_time = time.time()
-    # for s in range(7, 8):
-    #     for d in range(2, s):
-    #         curr_time = time.time()
-    #         print(d, curr_time - start_time)
-    #         start_time = curr_time
-    #         for k in range(1, 15):
-    #             curr_time = time.time()
-    #             print(k, curr_time - start_time)
-    #             start_time = curr_time
-    #             m = s * k + d
-    #             q, q_type = findQ2.findQ(m, s, False)
-    #             if not getProcedures(m, s, q):
-    #                 print(m,s,q)
 
