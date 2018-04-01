@@ -1,10 +1,12 @@
 from fractions import Fraction
 import findQ2
+import time
 
 
 def statement_one(m, s, V, sv, sv1):
     m_s = Fraction(m, s)
     Q = []
+
     for k in range(0, V + 1):
         less_than = []
         greater_than = []
@@ -13,9 +15,11 @@ def statement_one(m, s, V, sv, sv1):
         greater_than.append(Fraction(V - 2, 2 * V - 3))
         less_than.append(Fraction(m_s - Fraction(1, 2), V - 1))
 
-        for i in range(0, k):
+        i = k - 1
+        if i >= 0:
             greater_than.append(Fraction(m_s - (V - i) * (1 - m_s), i + (V - i) * (V - 1)))
-        for i in range(k+1, V+1):
+        i = k + 1
+        if i < V + 1:
             greater_than.append(Fraction(m_s * (V - 2 * i - 1) + i * (V - 1), V * V - i - V))
 
         min_less = min(less_than)
@@ -31,6 +35,8 @@ def statement_one(m, s, V, sv, sv1):
                 Q[k] = 1
         elif (V - 1) * sv1 / k == sv and (V - 1) * sv1 / k == (2 * m - 2 * (V - 1) * sv1) / (V - k):
                 Q[k] = 1
+        else:
+            print(k)
 
     # print("Stat1 Q list: %s" % str(Q))
     return min(Q)
@@ -47,9 +53,11 @@ def statement_two(m, s, V, sv, sv1):
         greater_than.append(Fraction(V - 2, 2 * V - 3))
         less_than.append(Fraction(V - m_s - Fraction(3, 2), V - 2))
 
-        for i in range(0, k):
+        i = k - 1
+        if i >= 0:
             greater_than.append(Fraction((V - 1 - i) * (V - m_s - 1) - m_s + i, i + (V - 1 - i) * (V - 2)))
-        for i in range(k + 1, V):
+        i = k + 1
+        if i < V:
             greater_than.append(Fraction(m_s - i * (1 - m_s) - (V - 1 - i) * (m_s - V + 2),
                                          i * (V - 1) + (V - 1 - i) * (V - 2)))
 
@@ -64,15 +72,20 @@ def statement_two(m, s, V, sv, sv1):
         elif k == V - 1:
             if 2 * m - 2 * V * sv == 0 and k * sv1 == V * sv:
                 Q[k] = 1
+            else:
+                print('k:', k)
         elif V * sv / k == sv1 and V * sv / k == (2 * m - 2 * V * sv) / (V - 1 - k):
-                Q[k] = 1
+            Q[k] = 1
+        else:
+            print('k:', k)
 
-    # print("Stat2 Q list: %s" % str(Q))
+    print("Stat2 Q list: %s" % str(Q))
     return min(Q)
 
 
 def findDanOne(m,s):
     V, sv, sv1 = findQ2.calcSv(m, s)
+    print('V: ', V)
     Q_V = statement_one(m, s, V, sv, sv1)
     # print("Min Stat1: %s" % str(Q_V))
     Q_V1 = statement_two(m, s, V, sv, sv1)
@@ -82,5 +95,7 @@ def findDanOne(m,s):
 
 
 if __name__ == '__main__':
-    print(findDanOne(36,13))
+    start_time = time.time()
+    print(findDanOne(1000, 3))
+    print(time.time() - start_time)
 

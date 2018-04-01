@@ -255,5 +255,5 @@ def f(m, s):
 
 if __name__ == '__main__':
     blah = time.time()
-    print(f(16, 15))
+    print(f(51, 23))
     print(time.time() - blah)

@@ -298,8 +298,8 @@ def calcSet(m, s, V, Q):
 
 
 if __name__ == '__main__':
-    m = 48
-    s = 37
+    m = 29
+    s = 17
     Q, ANS_type = findQ(m, s, True)
     print('Q: ' + str(Q))
     print('Min type: ' + ANS_type)

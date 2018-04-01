@@ -1,5 +1,8 @@
 from fractions import Fraction
 import math
+
+import time
+
 from JacobPrograms import BuddyMatch
 
 
@@ -28,9 +31,11 @@ def find_dk_one(m, s, V, sv, sv1):
         greater_than.append(Fraction(V - 2, 2 * V - 3))
         less_than.append(Fraction(m_s - Fraction(1, 2), V - 1))
 
-        for i in range(0, k):
+        i = k - 1
+        if i >= 0:
             greater_than.append(Fraction(m_s - (V - i) * (1 - m_s), i + (V - i) * (V - 1)))
-        for i in range(k+1, V+1):
+        i = k + 1
+        if i < V + 1:
             greater_than.append(Fraction(m_s * (V - 2 * i - 1) + i * (V - 1), V * V - i - V))
 
         min_less = min(less_than)
@@ -61,9 +66,11 @@ def find_dk_two(m, s, V, sv, sv1):
         greater_than.append(Fraction(V - 2, 2 * V - 3))
         less_than.append(Fraction(V - m_s - Fraction(3, 2), V - 2))
 
-        for i in range(0, k):
+        i = k - 1
+        if i >= 0:
             greater_than.append(Fraction((V - 1 - i) * (V - m_s - 1) - m_s + i, i + (V - 1 - i) * (V - 2)))
-        for i in range(k + 1, V):
+        i = k + 1
+        if i < V:
             greater_than.append(Fraction(m_s - i * (1 - m_s) - (V - 1 - i) * (m_s - V + 2),
                                          i * (V - 1) + (V - 1 - i) * (V - 2)))
 
@@ -102,9 +109,11 @@ def find_dkp_one(m, s, V, sv, sv1):
         greater_than.append(Fraction(V - 2, 2 * V - 3))
         less_than.append(Fraction(m_s - Fraction(1, 2), V - 1))
 
-        for i in range(0, k):
+        i = k - 1
+        if i >= 0:
             greater_than.append(Fraction(m_s - (V - i) * (1 - m_s), i + (V - i) * (V - 1)))
-        for i in range(k + 2, V + 1):
+        i = k + 2
+        if i < V + 1:
             greater_than.append(Fraction(m_s * (V - 2 * i - 1) + i * (V - 1), V * V - i - V))
 
         min_less = min(less_than)
@@ -129,9 +138,11 @@ def find_dkp_two(m, s, V, sv, sv1):
         greater_than.append(Fraction(V - 2, 2 * V - 3))
         less_than.append(Fraction(V - m_s - Fraction(3, 2), V - 2))
 
-        for i in range(0, k):
+        i = k - 1
+        if i >= 0:
             greater_than.append(Fraction((V - 1 - i) * (V - m_s - 1) - m_s + i, i + (V - 1 - i) * (V - 2)))
-        for i in range(k + 2, V):
+        i = k + 2
+        if i < V:
             greater_than.append(Fraction(m_s - i * (1 - m_s) - (V - 1 - i) * (m_s - V + 2),
                                          i * (V - 1) + (V - 1 - i) * (V - 2)))
 
@@ -287,9 +298,9 @@ def f(m, s):
     dkp, dkp_type = find_dkp(m, s)
     h1 = half_one(m, s)
     h2 = half_two(m, s)
-    bm = BuddyMatch.f(m, s)
-    # bm = 1
+    bm = BuddyMatch.f(m, s) if calcSv(m, s)[0] == 3 else 1
     results = [fc, dk, dkp, h1, h2, bm]
+    # print(results)
     ans = min(results)
     ans_type = ''
     result_types = ['FC', dk_type, dkp_type, 'HALF-ONE', 'HALF-TWO', 'BM']
@@ -301,5 +312,7 @@ def f(m, s):
 
 
 if __name__ == '__main__':
-    ans, _ = f(31, 19)
+    start_time = time.time()
+    ans, _ = f(1000, 3)
     print(ans)
+    print(time.time() - start_time)

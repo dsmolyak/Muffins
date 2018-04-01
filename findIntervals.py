@@ -23,7 +23,7 @@ def flippy_flip(Q, f, g):
 
 
 def find_intervals(m, s):
-    Q = Fraction(53, 130)
+    Q = Fraction(17, 42)
     print(Q)
     V, sv, sv1 = findQ2.calcSv(m, s)
     print("V: %s" % V)
@@ -43,6 +43,6 @@ def find_intervals(m, s):
 
 
 if __name__ == '__main__':
-    m = 23
-    s = 13
+    m = 49
+    s = 30
     find_intervals(m, s)

@@ -37,12 +37,22 @@ def relatively_prime(m, s):
 
 def write_file():
     doc = Document('MyDocc')
+    doc_open = Document('Open')
+
     table = LongTable('|c|c|c|c|c|c|')
     table.add_hline()
     table.add_row((bold('M'), bold('S'), bold('UB'),
                 bold('Method'), bold('Open?'), bold('LB')))
     table.add_hline()
     table.add_hline()
+
+    table_open = LongTable('|c|c|c|c|c|c|')
+    table_open.add_hline()
+    table_open.add_row((bold('M'), bold('S'), bold('UB'),
+                   bold('Method'), bold('Open?'), bold('LB')))
+    table_open.add_hline()
+    table_open.add_hline()
+
     for s in range(3, 51):
         for m in range(s + 1, 61):
             if relatively_prime(m, s):
@@ -56,7 +66,8 @@ def write_file():
                         open_prob = 'Open'
                         lb = Fraction(ans.numerator - 1, ans.denominator)
                         lb = lb if lb > Fraction(1, 3) else Fraction(1, 3)
-                        lb, ans = closer_bounds(m, s, lb, ans)
+                        lb = closer_bounds(m, s, lb, ans)
+                        lb, ans = convert_den(lb, ans)
                 except Procedures.TimeoutError:
                     open_prob = 'Timeout'
                 except KeyError:
@@ -65,19 +76,14 @@ def write_file():
                 table.add_row(row)
                 print(row)
                 table.add_hline()
+                if len(open_prob) > 0:
+                    table_open.add_row(row)
+                    table_open.add_hline()
 
     doc.append(table)
-    doc.generate_pdf('latex/largeRUN_test', clean_tex=False)
-
-
-def binary_search(m, s, higher, lower):
-    for i in range(5):
-        mid = (higher + lower) / 2
-        print(mid)
-        if Procedures.getProcedures(m, s, mid):
-            lower = mid
-        else:
-            higher = mid
+    doc.generate_pdf('latex/BIGRUN', clean_tex=False)
+    doc_open.append(table_open)
+    doc_open.generate_pdf('latex/BIGRUN_opens', clean_tex=False)
 
 
 # define gcd function
@@ -104,32 +110,70 @@ def convert_den(lb, ub):
     return res_lb, res_ub
 
 
+def open_probs():
+    doc_open = Document('Open')
+    table_open = LongTable('|c|c|c|c|c|c|c|')
+    table_open.add_hline()
+    table_open.add_row((bold('M'), bold('S'), bold('LB'), bold('UB'),
+                        bold('LB-CD'), bold('UB-CD'), bold('Method')))
+    table_open.add_hline()
+    table_open.add_hline()
+
+    tuples = [(29, 17), (41, 19), (59, 22), (41, 23), (51, 23), (41, 24), (54, 25), (59, 26),(46, 27),
+              (47, 29), (49, 30), (52, 31), (53, 31), (55, 31), (59, 33), (55, 34), (57, 35), (47, 36),
+              (48, 37), (50, 41), (55, 42), (53, 43), (55, 43), (56, 43), (59, 45)]
+    for tup in tuples:
+        m = tup[0]
+        s = tup[1]
+        if tup == (41, 19):
+            ub, ans_type = Fraction(983, 2280), 'ERIK'
+        else:
+            ub, ans_type = f(m, s)
+        try:
+            if Procedures.getProcedures(m, s, ub):
+                print('solved')
+            else:
+                lb = Fraction(ub.numerator - 1, ub.denominator)
+                lb = lb if lb > Fraction(1, 3) else Fraction(1, 3)
+                lb = closer_bounds(m, s, lb, ub)
+        except Procedures.TimeoutError:
+            print('Timeout')
+        except KeyError:
+            print('Timeout')
+        lb_cd, ub_cd = convert_den(lb, ub)
+        row = (m, s, str(lb), str(ub), lb_cd, ub_cd, ans_type)
+        print(row)
+        table_open.add_row(row)
+        table_open.add_hline()
+
+    doc_open.append(table_open)
+    doc_open.generate_pdf('latex/BIGRUN_opens', clean_tex=False)
+
+
 def closer_bounds(m, s, lb, ub):
-    res_ub = str(ub)
-    res_lb = str(lb)
-    for den in range (5, 200):
+    for den in range(5, 500):
         for num in range(int(den / 3 - 1), int(den / 2 + 1)):
             curr_frac = Fraction(num, den)
             if lb < curr_frac < ub:
-                print(curr_frac)
                 try:
                     if den % s == 0 and Procedures.getProcedures(m, s, curr_frac):
                         res_lb, res_ub = convert_den(curr_frac, ub)
+                        print(curr_frac)
                         print(res_lb, res_ub)
                         lb = curr_frac
                 except Procedures.TimeoutError:
                     print("no")
                 except KeyError:
                     print("no")
-    return res_lb, res_ub
+    return lb
 
 
 if __name__ == '__main__':
-    m = 41
-    s = 19
-    q, _ = f(m, s)
-    lb = Fraction(q.numerator - 1, q.denominator)
-    lb = lb if lb > Fraction(1, 3) else Fraction(1, 3)
-    print("\n" + str(closer_bounds(m, s, lb, q)))
-    # write_file()
-    # binary_search(47, 29, Fraction(47, 116), Fraction(93, 232))
+    # m = 47
+    # s = 17
+    # q, _ = f(m, s)
+    # lb = Fraction(q.numerator - 1, q.denominator)
+    # lb = lb if lb > Fraction(1, 3) else Fraction(1, 3)
+    # print("\n" + str(closer_bounds(m, s, lb, q)))
+    print(convert_den(Fraction(131, 304), Fraction(983, 2280)))
+    # open_probs()

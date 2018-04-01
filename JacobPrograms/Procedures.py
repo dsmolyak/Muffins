@@ -215,7 +215,7 @@ def procedureToString(procedure):
     return '\n'.join(lines)
 
 
-@timeout(5, os.strerror(errno.ETIMEDOUT))
+@timeout(300, os.strerror(errno.ETIMEDOUT))
 def getProcedures(m, s, Q=None, print_proc=False):
     pieces, d = None, None
     if Q == None:
@@ -255,8 +255,8 @@ def try6multiples(upto, start=1):
 
 
 if __name__ == '__main__':
-    m = 50
-    s = 41
+    m = 47
+    s = 17
 
     Q, ANS_type = fms.f(m, s)
     print('Q: ' + str(Q))
@@ -266,7 +266,7 @@ if __name__ == '__main__':
     try:
         # print(m, s, str(getProcedures(m, s, Q)))
         # print(Fraction(981, 2280))
-        print(getProcedures(m, s, Fraction(44, 123)))
+        print(getProcedures(m, s, Fraction(167, 374), True))
     except TimeoutError:
         print('darn')
     except KeyError:
