@@ -300,7 +300,6 @@ def f(m, s):
     h2 = half_two(m, s)
     bm = BuddyMatch.f(m, s) if calcSv(m, s)[0] == 3 else 1
     results = [fc, dk, dkp, h1, h2, bm]
-    # print(results)
     ans = min(results)
     ans_type = ''
     result_types = ['FC', dk_type, dkp_type, 'HALF-ONE', 'HALF-TWO', 'BM']
@@ -308,11 +307,14 @@ def f(m, s):
         if results[i] == ans:
             ans_type = result_types[i]
             break
+    # if ans_type == 'BM':
+    #     print(results)
+    #     if dk == 1:
+    #         print('???????????????????')
     return ans, ans_type
 
 
 if __name__ == '__main__':
-    start_time = time.time()
-    ans, _ = f(1000, 3)
-    print(ans)
-    print(time.time() - start_time)
+    for s in range(0, 50):
+        for m in range(s + 1, s*s):
+            f(m, s)

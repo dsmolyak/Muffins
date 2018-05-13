@@ -39,40 +39,42 @@ def write_file():
     doc = Document('MyDocc')
     doc_open = Document('Open')
 
-    table = LongTable('|c|c|c|c|c|c|')
+    table = LongTable('|c|c|c|c|c|c|c|c|')
     table.add_hline()
-    table.add_row((bold('M'), bold('S'), bold('UB'),
-                bold('Method'), bold('Open?'), bold('LB')))
+    table.add_row((bold('M'), bold('S'), bold('Method'), bold('Open?'),
+                   bold('LB'), bold('UB'), bold('LB-CD'), bold('UB-CD')))
     table.add_hline()
     table.add_hline()
 
-    table_open = LongTable('|c|c|c|c|c|c|')
+    table_open = LongTable('|c|c|c|c|c|c|c|c|')
     table_open.add_hline()
-    table_open.add_row((bold('M'), bold('S'), bold('UB'),
-                   bold('Method'), bold('Open?'), bold('LB')))
+    table_open.add_row((bold('M'), bold('S'), bold('Method'), bold('Open?'),
+                        bold('LB'), bold('UB'), bold('LB-CD'), bold('UB-CD')))
     table_open.add_hline()
     table_open.add_hline()
 
     for s in range(3, 51):
         for m in range(s + 1, 61):
             if relatively_prime(m, s):
-                ans, ans_type = f(m, s)
+                ub, ans_type = f(m, s)
                 open_prob = ''
                 lb = ''
+                lb_cd = ''
+                ub_cd = ''
                 try:
-                    if Procedures.getProcedures(m, s, ans):
+                    if Procedures.getProcedures(m, s, ub):
                         open_prob = ''
                     else:
                         open_prob = 'Open'
-                        lb = Fraction(ans.numerator - 1, ans.denominator)
+                        lb = Fraction(ub.numerator - 1, ub.denominator)
                         lb = lb if lb > Fraction(1, 3) else Fraction(1, 3)
-                        lb = closer_bounds(m, s, lb, ans)
-                        lb, ans = convert_den(lb, ans)
+                        lb = closer_bounds(m, s, lb, ub)
+                        lb_cd, ub_cd = convert_den(lb, ub)
                 except Procedures.TimeoutError:
                     open_prob = 'Timeout'
                 except KeyError:
                     open_prob = 'Timeout'
-                row = (m, s, ans, ans_type, open_prob, lb)
+                row = (m, s, ans_type, open_prob, str(lb), str(ub), lb_cd, ub_cd)
                 table.add_row(row)
                 print(row)
                 table.add_hline()
@@ -119,9 +121,7 @@ def open_probs():
     table_open.add_hline()
     table_open.add_hline()
 
-    tuples = [(29, 17), (41, 19), (59, 22), (41, 23), (51, 23), (41, 24), (54, 25), (59, 26),(46, 27),
-              (47, 29), (49, 30), (52, 31), (53, 31), (55, 31), (59, 33), (55, 34), (57, 35), (47, 36),
-              (48, 37), (50, 41), (55, 42), (53, 43), (55, 43), (56, 43), (59, 45)]
+    tuples = [(29, 17), (41, 19), (59, 22), (51, 23), (46, 27), (47, 29), (53, 31), (55, 34)]
     for tup in tuples:
         m = tup[0]
         s = tup[1]
@@ -135,6 +135,8 @@ def open_probs():
             else:
                 lb = Fraction(ub.numerator - 1, ub.denominator)
                 lb = lb if lb > Fraction(1, 3) else Fraction(1, 3)
+                if tup == (41, 19):
+                    lb = Fraction(980, 2280)
                 lb = closer_bounds(m, s, lb, ub)
         except Procedures.TimeoutError:
             print('Timeout')
@@ -151,14 +153,14 @@ def open_probs():
 
 
 def closer_bounds(m, s, lb, ub):
-    for den in range(5, 500):
+    for den in range(3, 530):
         for num in range(int(den / 3 - 1), int(den / 2 + 1)):
             curr_frac = Fraction(num, den)
-            if lb < curr_frac < ub:
+            if lb < curr_frac < ub and den % s == 0:
+                print(curr_frac)
                 try:
-                    if den % s == 0 and Procedures.getProcedures(m, s, curr_frac):
+                    if Procedures.getProcedures(m, s, curr_frac):
                         res_lb, res_ub = convert_den(curr_frac, ub)
-                        print(curr_frac)
                         print(res_lb, res_ub)
                         lb = curr_frac
                 except Procedures.TimeoutError:
@@ -169,11 +171,12 @@ def closer_bounds(m, s, lb, ub):
 
 
 if __name__ == '__main__':
-    # m = 47
-    # s = 17
-    # q, _ = f(m, s)
-    # lb = Fraction(q.numerator - 1, q.denominator)
-    # lb = lb if lb > Fraction(1, 3) else Fraction(1, 3)
-    # print("\n" + str(closer_bounds(m, s, lb, q)))
-    print(convert_den(Fraction(131, 304), Fraction(983, 2280)))
+    m = 59
+    s = 33
+    q, _ = f(m, s)
+    lb = Fraction(q.numerator - 1, q.denominator)
+    lb = lb if lb > Fraction(1, 3) else Fraction(1, 3)
+    # lb = Fraction(27, 68)
+    print("\n" + str(closer_bounds(m, s, lb, q)))
     # open_probs()
+    # write_file()
