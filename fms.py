@@ -307,14 +307,11 @@ def f(m, s):
         if results[i] == ans:
             ans_type = result_types[i]
             break
-    # if ans_type == 'BM':
-    #     print(results)
-    #     if dk == 1:
-    #         print('???????????????????')
     return ans, ans_type
 
 
 if __name__ == '__main__':
-    for s in range(0, 50):
-        for m in range(s + 1, s*s):
-            f(m, s)
+    print(f(59, 33))
+    # for s in range(0, 50):
+    #     for m in range(s + 1, s*s):
+    #         f(m, s)

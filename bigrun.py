@@ -53,8 +53,9 @@ def write_file():
     table_open.add_hline()
     table_open.add_hline()
 
-    for s in range(3, 51):
-        for m in range(s + 1, 61):
+    for s in range(3, 61):
+        m_start = s + 1 # if s + 1 > 60 else 60
+        for m in range(m_start, 71):
             if relatively_prime(m, s):
                 ub, ans_type = f(m, s)
                 open_prob = ''
@@ -153,7 +154,7 @@ def open_probs():
 
 
 def closer_bounds(m, s, lb, ub):
-    for den in range(3, 530):
+    for den in range(3, 550):
         for num in range(int(den / 3 - 1), int(den / 2 + 1)):
             curr_frac = Fraction(num, den)
             if lb < curr_frac < ub and den % s == 0:
@@ -171,12 +172,11 @@ def closer_bounds(m, s, lb, ub):
 
 
 if __name__ == '__main__':
-    m = 59
-    s = 33
-    q, _ = f(m, s)
-    lb = Fraction(q.numerator - 1, q.denominator)
-    lb = lb if lb > Fraction(1, 3) else Fraction(1, 3)
-    # lb = Fraction(27, 68)
-    print("\n" + str(closer_bounds(m, s, lb, q)))
+    # m = 67
+    # s = 51
+    # q, _ = f(m, s)
+    # lb = Fraction(q.numerator - 1, q.denominator)
+    # lb = lb if lb > Fraction(1, 3) else Fraction(1, 3)
+    # print("\n" + str(closer_bounds(m, s, lb, q)))
     # open_probs()
-    # write_file()
+    write_file()

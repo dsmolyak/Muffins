@@ -76,10 +76,12 @@ def fc_pattern(d, s):
 
 
 if __name__ == '__main__':
-    s = 10
-    print(floor_ceiling(11,8))
-    for d in range(1, s):
-        num, den = fc_pattern(d, s)
-        if num:
-            print(num + ' / ' + den)
+    print(floor_ceiling(107, 13))
+
+    # s = 10
+    # print(floor_ceiling(11,8))
+    # for d in range(1, s):
+    #     num, den = fc_pattern(d, s)
+    #     if num:
+    #         print(num + ' / ' + den)
 
