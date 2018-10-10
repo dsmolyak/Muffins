@@ -3,8 +3,8 @@ import functools
 import constraint
 from sympy import *
 
-from JacobPrograms import intsystem
-from JacobPrograms import symflip
+from procedure import intsystem
+from procedure import symflip
 
 
 def waysToAddTo(numbers, addTo):

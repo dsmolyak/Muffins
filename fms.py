@@ -3,7 +3,7 @@ import math
 
 import time
 
-from JacobPrograms import BuddyMatch
+from procedure import BuddyMatch
 
 
 def calcSv(m, s):
@@ -312,6 +312,4 @@ def f(m, s):
 
 if __name__ == '__main__':
     print(f(59, 33))
-    # for s in range(0, 50):
-    #     for m in range(s + 1, s*s):
-    #         f(m, s)
+

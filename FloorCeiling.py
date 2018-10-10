@@ -1,6 +1,6 @@
 from fractions import Fraction
 import math
-import findQ2
+from fms import f
 
 
 def floor_ceiling(m, s):
@@ -50,10 +50,10 @@ def fc_pattern(d, s):
     if not intersect(factor(s),factor(s + d)):
         type = 'third'
         k = 1
-        _, q_type = findQ2.findQ(s * k + d, s, False)
+        _, q_type = f(s * k + d, s)
         while type == 'third' or q_type != 'FC':
             type = fc_type(s * k + d, s)
-            _, q_type = findQ2.findQ(s * k + d, s, False)
+            _, q_type = f(s * k + d, s)
             k += 1
         # print(type)
         denom = str(2 * s) + 'k'

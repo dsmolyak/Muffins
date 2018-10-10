@@ -1,7 +1,7 @@
 from pylatex import Document, LongTable, Alignat
 from pylatex.utils import bold
 from fms import f
-from JacobPrograms import Procedures
+from procedure import Procedures
 import math
 from fractions import Fraction
 

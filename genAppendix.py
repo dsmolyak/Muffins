@@ -1,8 +1,9 @@
 from pylatex import Document, Section, Math, Alignat, NoEscape
 from FloorCeiling import fc_pattern
-from findQ2 import findQ
 from fractions import Fraction
 import math
+
+from fms import f
 
 total_num_exceptions = 0
 
@@ -14,7 +15,7 @@ def find_exceptions(s, d, stat_map):
     range_end = int((100 - d) / s) + 1
     for k in range(1, range_end):
         m = s * k + d
-        q, q_type = findQ(m, s, False)
+        q, q_type = f(m, s)
         if q_type == 'FC' and q != Fraction(1, 3):
             if not pattern_found:
                 pattern_found = True

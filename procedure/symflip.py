@@ -1,7 +1,7 @@
 from sympy import *
 
-import findQ2
-from JacobPrograms import interval
+from fms import f
+from procedure import interval
 
 
 def mapunion(s, f):
@@ -45,7 +45,7 @@ def getIntervals(m, s, Q, V):
 
 def doit(m, s):
     V = interval.findV(m, s)
-    Q, _ = findQ2.findQ(m, s, False)
+    Q, _ = f(m, s, False)
     (sV, sVm1) = interval.getShares(m, s, V)
     intervals = getIntervals(m, s, Q, V)
     # print (sV, sVm1, V)

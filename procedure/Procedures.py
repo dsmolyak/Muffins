@@ -1,11 +1,10 @@
 import math
 from fractions import Fraction
-import findQ2
 
 from sympy import *
 
-from JacobPrograms import integers
-from JacobPrograms import symflip
+from procedure import integers
+from procedure import symflip
 import time
 
 from functools import wraps
@@ -120,7 +119,7 @@ def biggrid(maxM, maxS):
                 # if hasElem:
                 inter = 1
                 try:
-                    inter,_ = findQ2.findQ(m, s, False)
+                    inter,_ = fms.f(m, s)
                 except:
                     pass
                 fc = floorciel(m, s)
@@ -215,7 +214,7 @@ def procedureToString(procedure):
     return '\n'.join(lines)
 
 
-@timeout(900, os.strerror(errno.ETIMEDOUT))
+# @timeout(900, os.strerror(errno.ETIMEDOUT))
 def getProcedures(m, s, Q=None, print_proc=False):
     pieces, d = None, None
     if Q == None:
@@ -262,7 +261,7 @@ if __name__ == '__main__':
     print('Q: ' + str(Q))
     print('Min type: ' + ANS_type)
 
-    blah = time.time()
+    start_time = time.time()
     try:
         # print(m, s, str(getProcedures(m, s, Q, True)))
         # print(Fraction(981, 2280))
@@ -271,5 +270,5 @@ if __name__ == '__main__':
         print('darn')
     except KeyError:
         print('darn')
-    print(time.time() - blah)
+    print(time.time() - start_time)
 
