@@ -5,6 +5,7 @@ from fractions import Fraction
 
 filename = 'data/fms.csv'
 
+
 with open(filename, 'w') as csv_file:
     csv_writer = csv.writer(csv_file)
     csv_writer.writerow(['m', 's', 'ans', 'exception type (if any)'])

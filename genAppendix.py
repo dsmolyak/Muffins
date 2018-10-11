@@ -89,6 +89,7 @@ def create_appendix(stat_map):
     # doc.generate_pdf('Appendix', clean_tex=False)
 
 
+
 if __name__ == '__main__':
     stat_map = {'total': 0, 'V3': 0, 'int': 3, '1/3': 0, 'BM': 0}
     create_appendix(stat_map)

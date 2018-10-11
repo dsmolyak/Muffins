@@ -4,6 +4,7 @@ from fractions import Fraction
 
 # This is an implementation of the interval theorem from https://arxiv.org/pdf/1709.02452.pdf
 
+
 def findV(m, s):
     """This function returns the variable V that is reffered to in the paper.  The value for V used here
     is simply a guess, not the only possible. However, it is the correct guess in many cases."""

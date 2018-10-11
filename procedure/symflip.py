@@ -56,3 +56,4 @@ def doit(m, s):
     #	print("Muffins in ranges " + str(intervals) + " with quantities " + str(sV*V) + ", " +str(sVm1*(V-1) - sV*V) + ", " + str(sV*V))
     # else:
     #	print("fuck off")
+

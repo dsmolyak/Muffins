@@ -253,6 +253,7 @@ def f(m, s):
         return Fraction(int(num), int(den))
 
 
+
 if __name__ == '__main__':
     blah = time.time()
     print(f(51, 23))

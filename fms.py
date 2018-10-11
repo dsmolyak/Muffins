@@ -310,6 +310,7 @@ def f(m, s):
     return ans, ans_type
 
 
+
 if __name__ == '__main__':
     print(f(59, 33))
 

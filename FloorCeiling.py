@@ -75,6 +75,7 @@ def fc_pattern(d, s):
         return None, None
 
 
+
 if __name__ == '__main__':
     print(floor_ceiling(107, 13))
 
