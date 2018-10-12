@@ -1,11 +1,9 @@
-import math
 from fractions import Fraction
 
 from sympy import *
 
 from procedure import integers
 from procedure import symflip
-import time
 
 from functools import wraps
 import errno

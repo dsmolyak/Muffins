@@ -1,11 +1,9 @@
-from pylatex import Document, LongTable, Alignat
+from pylatex import Document, LongTable
 from pylatex.utils import bold
 from fms import f
-from procedure import procedures
+import procedures
 import math
 from fractions import Fraction
-
-import multiprocessing
 
 
 def factor(n):
