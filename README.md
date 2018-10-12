@@ -14,6 +14,10 @@ Run this program to find the upper bound for f(m,s).
 
 For example: `python fms.py 5 3` will return the upper bound of f(5, 3) and the method used to find it.
 
+For ranges of values, for instance 10 < m < 21 and 4 < s < 11:
+
+`python fms.py 11 20 5 10`
+
 ### procedure/Procedures.py
 Run this program to find the whether a procedure exists for cutting m muffins for s people, with the smallest piece at least a certain size, Q.
 

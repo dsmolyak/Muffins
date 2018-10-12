@@ -312,9 +312,21 @@ def f(m, s):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) >= 3:
+    if len(sys.argv) == 3:
         m = int(sys.argv[1])
         s = int(sys.argv[2])
         ans, ans_type = f(m, s)
         print('For m = %d and for s = %d, f(m,s) has an upper bound of %s.' % (m, s, ans))
         print('This is proven by the %s theorem.' % ans_type)
+
+    if len(sys.argv) == 5:
+        m_l = int(sys.argv[1])
+        m_u = int(sys.argv[2])
+        s_l = int(sys.argv[3])
+        s_u = int(sys.argv[4])
+
+        for s in range(s_l, s_u + 1):
+            for m in range(m_l if m_l > s else s + 1, m_u + 1):
+                ans, ans_type = f(m, s)
+                print('For m = %d and for s = %d, f(m,s) has an upper bound of %s.' % (m, s, ans))
+                print('This is proven by the %s theorem.' % ans_type)
