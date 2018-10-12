@@ -1,7 +1,7 @@
 from pylatex import Document, LongTable, Alignat
 from pylatex.utils import bold
 from fms import f
-from procedure import Procedures
+from procedure import procedures
 import math
 from fractions import Fraction
 
@@ -63,7 +63,7 @@ def write_file():
                 lb_cd = ''
                 ub_cd = ''
                 try:
-                    if Procedures.getProcedures(m, s, ub):
+                    if procedures.getProcedures(m, s, ub):
                         open_prob = ''
                     else:
                         open_prob = 'Open'
@@ -71,7 +71,7 @@ def write_file():
                         lb = lb if lb > Fraction(1, 3) else Fraction(1, 3)
                         lb = closer_bounds(m, s, lb, ub)
                         lb_cd, ub_cd = convert_den(lb, ub)
-                except Procedures.TimeoutError:
+                except procedures.TimeoutError:
                     open_prob = 'Timeout'
                 except KeyError:
                     open_prob = 'Timeout'
@@ -131,7 +131,7 @@ def open_probs():
         else:
             ub, ans_type = f(m, s)
         try:
-            if Procedures.getProcedures(m, s, ub):
+            if procedures.getProcedures(m, s, ub):
                 print('solved')
             else:
                 lb = Fraction(ub.numerator - 1, ub.denominator)
@@ -139,7 +139,7 @@ def open_probs():
                 if tup == (41, 19):
                     lb = Fraction(980, 2280)
                 lb = closer_bounds(m, s, lb, ub)
-        except Procedures.TimeoutError:
+        except procedures.TimeoutError:
             print('Timeout')
         except KeyError:
             print('Timeout')
@@ -160,11 +160,11 @@ def closer_bounds(m, s, lb, ub):
             if lb < curr_frac < ub and den % s == 0:
                 print(curr_frac)
                 try:
-                    if Procedures.getProcedures(m, s, curr_frac):
+                    if procedures.getProcedures(m, s, curr_frac):
                         res_lb, res_ub = convert_den(curr_frac, ub)
                         print(res_lb, res_ub)
                         lb = curr_frac
-                except Procedures.TimeoutError:
+                except procedures.TimeoutError:
                     print("no")
                 except KeyError:
                     print("no")

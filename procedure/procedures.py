@@ -12,6 +12,7 @@ import errno
 import os
 import signal
 import fms
+import sys
 
 
 class TimeoutError(Exception):
@@ -255,21 +256,28 @@ def try6multiples(upto, start=1):
 
 
 if __name__ == '__main__':
-    m = 59
-    s = 33
+    if len(sys.argv) >= 3:
+        m = int(sys.argv[1])
+        s = int(sys.argv[2])
+        ans, _ = fms.f(m, s)
 
-    Q, ANS_type = fms.f(m, s)
-    print('Q: ' + str(Q))
-    print('Min type: ' + ANS_type)
+        if len(sys.argv) == 4:
+            ans = Fraction(int(sys.argv[3].split('/')[0]), int(sys.argv[3].split('/')[1]))
 
-    start_time = time.time()
-    try:
-        # print(m, s, str(getProcedures(m, s, Q, True)))
-        # print(Fraction(981, 2280))
-        print(getProcedures(m, s, Fraction(293, 726), True))
-    except TimeoutError:
-        print('darn')
-    except KeyError:
-        print('darn')
-    print(time.time() - start_time)
+        try:
+            if getProcedures(m, s, ans, True):
+                print('\nFor m = %d and s = %d, there exists a procedure for cutting m muffins for s '
+                      'students such that the smallest piece is at least %s.' % (m, s, ans))
+                print('That procedure is shown above. ^')
+            else:
+                print('\nFor m = %d and s = %d, there does not exists a procedure for cutting m muffins for s '
+                      'students such that the smallest piece is at least %s.' % (m, s, ans))
 
+        except TimeoutError:
+            print('\nFor m = %d and s = %d, there may exist a procedure for cutting m muffins for s '
+                  'students such that the smallest piece is at least %s, '
+                  'however you have exceeded the time limit.' % (m, s, ans))
+        except KeyError:
+            print('\nFor m = %d and s = %d, there may exist a procedure for cutting m muffins for s '
+                  'students such that the smallest piece is at least %s, '
+                  'however you have exceeded the time limit.' % (m, s, ans))

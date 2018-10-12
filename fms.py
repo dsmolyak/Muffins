@@ -1,7 +1,8 @@
 from fractions import Fraction
 import math
 
-import time
+import sys
+# sys.path.insert(0, './procedure')
 
 from procedure import BuddyMatch
 
@@ -302,7 +303,7 @@ def f(m, s):
     results = [fc, dk, dkp, h1, h2, bm]
     ans = min(results)
     ans_type = ''
-    result_types = ['FC', dk_type, dkp_type, 'HALF-ONE', 'HALF-TWO', 'BM']
+    result_types = ['Floor-Ceiling', dk_type, dkp_type, 'HALF-ONE', 'HALF-TWO', 'V3']
     for i in range(0, len(results)):
         if results[i] == ans:
             ans_type = result_types[i]
@@ -310,7 +311,10 @@ def f(m, s):
     return ans, ans_type
 
 
-
 if __name__ == '__main__':
-    print(f(59, 33))
-
+    if len(sys.argv) >= 3:
+        m = int(sys.argv[1])
+        s = int(sys.argv[2])
+        ans, ans_type = f(m, s)
+        print('For m = %d and for s = %d, f(m,s) has an upper bound of %s.' % (m, s, ans))
+        print('This is proven by the %s theorem.' % ans_type)
