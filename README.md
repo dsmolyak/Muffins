@@ -2,9 +2,9 @@
 Various procedural and algorithmic programs to help solve cases of the Muffin problem
 
 ## Setup/Prerequisites
-1. Must be using Python 3
-2. Pulp library installed (`pip install pulp`)
-3. Sympy library installed (`pip install sympy`)
+1. Must be using Python 3 (If Python 3 is not default, replace each occurance below of `python` with `python3`)
+2. Pulp library installed (`pip install pulp` or `pip3 install pulp`)
+3. Sympy library installed (`pip install sympy` or `pip3 install sympy`)
 
 
 ## Important Files
