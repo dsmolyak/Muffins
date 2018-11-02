@@ -169,13 +169,5 @@ def closer_bounds(m, s, lb, ub):
     return lb
 
 
-
 if __name__ == '__main__':
-    # m = 67
-    # s = 51
-    # q, _ = f(m, s)
-    # lb = Fraction(q.numerator - 1, q.denominator)
-    # lb = lb if lb > Fraction(1, 3) else Fraction(1, 3)
-    # print("\n" + str(closer_bounds(m, s, lb, q)))
-    # open_probs()
     write_file()

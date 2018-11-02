@@ -2,7 +2,6 @@ from fractions import Fraction
 import math
 
 import sys
-# sys.path.insert(0, './procedure')
 
 from procedure import BuddyMatch
 
@@ -300,10 +299,10 @@ def f(m, s):
     h1 = half_one(m, s)
     h2 = half_two(m, s)
     bm = BuddyMatch.f(m, s) if calcSv(m, s)[0] == 3 else 1
-    results = [fc, dk, dkp, h1, h2, bm]
+    results = [fc, h1, h2, dk, dkp, bm]
     ans = min(results)
     ans_type = ''
-    result_types = ['Floor-Ceiling', dk_type, dkp_type, 'HALF-ONE', 'HALF-TWO', 'V3']
+    result_types = ['Floor-Ceiling', 'HALF-ONE', 'HALF-TWO', dk_type, dkp_type, 'V3']
     for i in range(0, len(results)):
         if results[i] == ans:
             ans_type = result_types[i]
