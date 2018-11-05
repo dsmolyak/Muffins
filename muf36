@@ -1,0 +1,5 @@
+#!/bin/bash
+
+python36 fms.py $1 $2
+echo ""
+python36 procedures.py $1 $2

@@ -302,7 +302,7 @@ def f(m, s):
     results = [fc, h1, h2, dk, dkp, bm]
     ans = min(results)
     ans_type = ''
-    result_types = ['Floor-Ceiling', 'HALF-ONE', 'HALF-TWO', dk_type, dkp_type, 'V3']
+    result_types = ['Floor-Ceiling', 'HALF-ONE', 'HALF-TWO', dk_type, dkp_type, 'BM']
     for i in range(0, len(results)):
         if results[i] == ans:
             ans_type = result_types[i]
