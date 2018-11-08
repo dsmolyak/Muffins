@@ -4,6 +4,7 @@ from fms import f
 import procedures
 import math
 from fractions import Fraction
+import sys
 
 
 def factor(n):
@@ -33,7 +34,7 @@ def relatively_prime(m, s):
     return True
 
 
-def write_file():
+def write_file(m_l=3, m_u=70, s_l=3, s_u=60):
     doc = Document('MyDocc')
     doc_open = Document('Open')
 
@@ -51,9 +52,9 @@ def write_file():
     table_open.add_hline()
     table_open.add_hline()
 
-    for s in range(3, 61):
-        m_start = s + 1 # if s + 1 > 60 else 60
-        for m in range(m_start, 71):
+    for s in range(s_l, s_u + 1):
+        m_start = s + 1 if s + 1 > m_l else m_l
+        for m in range(m_start, m_u + 1):
             if relatively_prime(m, s):
                 ub, ans_type = f(m, s)
                 open_prob = ''
@@ -82,9 +83,9 @@ def write_file():
                     table_open.add_hline()
 
     doc.append(table)
-    doc.generate_pdf('latex/BIGRUN', clean_tex=False)
+    doc.generate_pdf('bigrun/BIGRUN', clean_tex=False)
     doc_open.append(table_open)
-    doc_open.generate_pdf('latex/BIGRUN_opens', clean_tex=False)
+    doc_open.generate_pdf('bigrun/BIGRUN_opens', clean_tex=False)
 
 
 # define gcd function
@@ -170,4 +171,13 @@ def closer_bounds(m, s, lb, ub):
 
 
 if __name__ == '__main__':
-    write_file()
+    if len(sys.argv) == 5:
+        m = int(sys.argv[1])
+        m_l = int(sys.argv[1])
+        m_u = int(sys.argv[2])
+        s_l = int(sys.argv[3])
+        s_u = int(sys.argv[4])
+        write_file(m_l, m_u, s_l, s_u)
+
+    else:
+        write_file()

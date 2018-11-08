@@ -1,5 +1,3 @@
 #!/bin/bash
 
-python3 fms.py $1 $2
-echo ""
-python3 procedures.py $1 $2
+python3 muf.py $1 $2
