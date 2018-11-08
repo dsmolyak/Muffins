@@ -5,6 +5,7 @@ Various procedural and algorithmic programs to help solve cases of the Muffin pr
 1. Must be using Python 3 (If Python 3 is not default, replace each occurance below of `python` with `python3` or `python36`)
 2. Pulp library installed (`pip install pulp` or `pip3 install pulp`)
 3. Sympy library installed (`pip install sympy` or `pip3 install sympy`)
+4. Pylatex library installed (`pip install pylatex` or `pip3 install pylatex`)
 
 
 ## Important Files
