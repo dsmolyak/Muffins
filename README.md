@@ -10,9 +10,9 @@ Various procedural and algorithmic programs to help solve cases of the Muffin pr
 ## Important Files
 
 ### muf
-Run this program to find the upper bound for f(m,s) and whether it matches the lower bound.
+Run this program to find the upper bound and lower bound for f(m,s).
 
-For example: `./muf 5 3` will return the upper bound of f(5,3), the method used to find it, and whether a procedure exists for that upper bound.
+For example: `./muf 5 3` will return the upper bound of f(5,3), the method used to find it, the lower bound of f(5,3), and the procedure used to cut m muffins for s people with the lower bound as the smallest piece.
 (Replace `muf` with `muf3` or `muf36` depending on what your corresponding command is for `python`)
 
 ### fms.py - named for f(m,s)
