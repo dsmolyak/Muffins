@@ -153,7 +153,7 @@ def open_probs():
 
 
 def closer_bounds(m, s, lb, ub):
-    for den in range(3, 550):
+    for den in range(3, max((550, s*s))):
         for num in range(int(den / 3 - 1), int(den / 2 + 1)):
             curr_frac = Fraction(num, den)
             if lb < curr_frac < ub and den % s == 0:

@@ -45,7 +45,7 @@ def getIntervals(m, s, Q, V):
 
 def doit(m, s):
     V = interval.findV(m, s)
-    Q, _ = f(m, s, False)
+    Q, _ = f(m, s)
     (sV, sVm1) = interval.getShares(m, s, V)
     intervals = getIntervals(m, s, Q, V)
     # print (sV, sVm1, V)

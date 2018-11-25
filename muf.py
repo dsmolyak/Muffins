@@ -3,6 +3,7 @@ from fms import f
 from procedures import getProcedures
 from bigrun import closer_bounds
 from fractions import Fraction
+import proof_prints
 
 if __name__ == '__main__':
     if len(sys.argv) == 3:
@@ -11,6 +12,9 @@ if __name__ == '__main__':
         ub, ub_type = f(m, s)
         print('For m = %d and for s = %d, f(m,s) has an upper bound of %s.' % (m, s, ub))
         print('This is proven by the %s theorem.' % ub_type)
+
+        proof_prints.gen_proof(m, s)
+        print()
 
         if getProcedures(m, s, ub):
             getProcedures(m, s, ub, True)
