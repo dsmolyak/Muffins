@@ -19,12 +19,16 @@ def gen_proof(m, s):
         V_int_str = '(%s,%s) and (%s,%s)' % (ans, h1_str, g1_str, g_str)
         V1_int_str = '(%s,%s)' % (h_str, 1 - ans)
 
-        print('The %d-shares are in %s' % (V - 1, V_int_str))
-        print('The %d-shares are in %s' % (V, V1_int_str))
-
+        print('The %d-shares are in %s' % (V, V_int_str))
+        print('The %d-shares are in %s' % (V - 1, V1_int_str))
+        
     elif 'TWO' in ans_type:
         V_int_str = '(%s,%s)' % (ans, g_str)
         V1_int_str = '(%s,%s) and (%s,%s)' % (h_str, h1_str, g1_str, 1 - ans)
 
-        print('The %d-shares are in %s' % (V - 1, V_int_str))
-        print('The %d-shares are in %s' % (V, V1_int_str))
+        print('The %d-shares are in %s' % (V, V_int_str))
+        print('The %d-shares are in %s' % (V - 1, V1_int_str))
+
+    elif 'HALF' == ans_type:
+        print('beta = ')
+

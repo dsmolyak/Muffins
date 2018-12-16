@@ -37,6 +37,7 @@ def relatively_prime(m, s):
 def write_file(m_l=3, m_u=70, s_l=3, s_u=60):
     doc = Document('MyDocc')
     doc_open = Document('Open')
+    doc_non_FC = Document('Non_FC')
 
     table = LongTable('|c|c|c|c|c|c|c|c|')
     table.add_hline()
@@ -51,6 +52,13 @@ def write_file(m_l=3, m_u=70, s_l=3, s_u=60):
                         bold('LB'), bold('UB'), bold('LB-CD'), bold('UB-CD')))
     table_open.add_hline()
     table_open.add_hline()
+
+    table_non_FC = LongTable('|c|c|c|c|c|c|c|c|')
+    table_non_FC.add_hline()
+    table_non_FC.add_row((bold('M'), bold('S'), bold('Method'), bold('Open?'),
+                        bold('LB'), bold('UB'), bold('LB-CD'), bold('UB-CD')))
+    table_non_FC.add_hline()
+    table_non_FC.add_hline()
 
     for s in range(s_l, s_u + 1):
         m_start = s + 1 if s + 1 > m_l else m_l
@@ -81,11 +89,16 @@ def write_file(m_l=3, m_u=70, s_l=3, s_u=60):
                 if len(open_prob) > 0:
                     table_open.add_row(row)
                     table_open.add_hline()
+                if ans_type != 'Floor-Ceiling':
+                    table_non_FC.add_row(row)
+                    table_non_FC.add_hline()
 
     doc.append(table)
     doc.generate_pdf('bigrun/BIGRUN', clean_tex=False)
     doc_open.append(table_open)
     doc_open.generate_pdf('bigrun/BIGRUN_opens', clean_tex=False)
+    doc_non_FC.append(table_non_FC)
+    doc_non_FC.generate_pdf('bigrun/BIGRUN_non_FC', clean_tex=False)
 
 
 # define gcd function

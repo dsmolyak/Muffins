@@ -164,145 +164,48 @@ def find_dkp(m, s):
     return (dkp_1, 'DKp-ONE') if dkp_1 < dkp_2 else (dkp_2, 'DKp-TWO')
 
 
-def half_one(m, s):
+def half(m, s):
     V, sv, sv1 = calcSv(m, s)
-    if V * sv > m:
-        return 1
-
-    U = math.ceil(Fraction(V * sv, sv1))
-    du1 = U * sv1 - V * sv
-    if du1 == 0:
-        return 1
-    du = V * sv - (U - 1) * sv1
-    Xu = math.floor(Fraction(m - V * sv, du))
-    Xu1 = math.floor(Fraction(m - V * sv, du1))
-
     frac_ms = Fraction(m, s)
-    A = frac_ms - (U + 1) * (1 - frac_ms) - (V - U - 2) * (frac_ms - V - 2)
-    B = (U + 1) * (V - 1) + (V - U - 2) * (V - 2)
-
-    Q7_2 = 0
-    if A <= 0:
-        Q7_2 = 0
-    elif B > 0:
-        Q7_2 = Fraction(A, B)
-    elif A > 0 and B <= 0:
-        Q7_2 = math.inf
-    Q7_2 = 0 if U >= sv1 else Q7_2
-
-    C = (U - 2) + (V - U + 1) * (-1 * frac_ms + V - 1) - frac_ms
-    D = V ** 2 - U * V - V + 3 * U - 4
-
-    Q7_3 = 0
-    if C <= 0:
-        Q7_3 = 0
-    elif D > 0:
-        Q7_3 = Fraction(C, D)
-    elif C > 0 and D <= 0:
-        Q7_3 = math.inf
-    Q7_3 = 0 if U <= 1 else Q7_3
-
-    E = frac_ms - Xu * (frac_ms - V + 2) - (V - 1 - U - Xu) * Fraction(1, 2) - U * (1 - frac_ms)
-    F = Xu * (V - 2) + U * (V - 1)
-    G = Xu1 * (1 - frac_ms + V - 2) + (V - U - Xu1) * Fraction(1, 2) + (U - 1) - frac_ms
-    H = Xu1 * (V - 2) + U - 1
-
-    Q7_5 = 0
-    if E <= 0:
-        Q7_5 = 0
-    elif G <= 0:
-        Q7_5 = 0
-    elif E > 0 and F > 0 and G > 0 and H > 0:
-        Q7_5 = min(Fraction(E, F), Fraction(G, H))
-    elif E > 0 and F > 0 and G > 0 and H <= 0:
-        Q7_5 = Fraction(E, F)
-    elif E > 0 and F <= 0 and G > 0 and H > 0:
-        Q7_5 = Fraction(G, H)
-    elif E > 0 and F <= 0 and G > 0 and H <= 0:
-        Q7_5 = math.inf
-
-    LHS = max(Fraction(V - 2, 2 * V - 3), Q7_2, Q7_3, Q7_5)
-    RHS = min(Fraction(m, s * V), Fraction(V - 1 - Fraction(m, s), V - 1),
-              Fraction(Fraction(1, 2) - Fraction(m, s) + V - 2), V - 2)
-
-    return LHS if LHS < RHS else 1
-
-
-def half_two(m, s):
-    V, sv, sv1 = calcSv(m, s)
-    if (V - 1) * sv1 > m:
+    if (V-1) * sv1 == V * sv:
+        print('equal shares!')
         return 1
 
-    U = math.ceil(Fraction((V - 1) * sv1, sv))
-    du1 = U * sv - (V - 1) * sv1
-    if du1 == 0:
-        return 1
-    du = (V - 1) * sv1 - (U - 1) * sv
-    Xu = math.floor(Fraction(m - (V - 1) * sv1, du))
-    Xu1 = math.floor(Fraction(m - (V - 1) * sv1, du1))
+    # Verify 1/3
+    if V == 3:
+        alpha = Fraction(1, 3)
+        beta = frac_ms - (1 - alpha) * (V - 2)
+        gamma = frac_ms - alpha * (V - 1)
+        if beta >= gamma:
+            if gamma >= Fraction(1, 2) and V * sv < (V - 1) * sv1:
+                return Fraction(1, 3)
+            elif beta <= Fraction(1, 2) and V * sv > (V - 1) * sv1:
+                return Fraction(1, 3)
 
-    frac_ms = Fraction(m, s)
-    A = (U + 1) * (V - frac_ms - 1) + (V - U - 1) * frac_ms - frac_ms
-    B = (U + 1) * (V - 2) + (V - 1) * (V - U - 1)
+    alpha_1 = 1 - Fraction(frac_ms - Fraction(1, 2), V - 2)
+    beta_1 = frac_ms - (1 - alpha_1) * (V - 2)
+    gamma_1 = frac_ms - alpha_1 * (V - 1)
+    if beta_1 < gamma_1:
+        alpha_1 = 1
+    alpha_2 = Fraction(frac_ms - Fraction(1, 2), V - 1)
+    beta_2 = frac_ms - (1 - alpha_2) * (V - 2)
+    gamma_2 = frac_ms - alpha_2 * (V - 1)
+    if beta_2 < gamma_2:
+        alpha_2 = 1
 
-    Q8_2 = 0
-    if A <= 0:
-        Q8_2 = 0
-    elif B > 0:
-        Q8_2 = Fraction(A, B)
-    elif A > 0 and B <= 0:
-        Q8_2 = math.inf
-    Q8_2 = 0 if U >= sv else Q8_2
-
-    C = frac_ms - (V - U + 2) * (1 - frac_ms)
-    D = U - 2 + (V - U + 2) * (V - 1)
-
-    Q8_3 = 0
-    if C <= 0:
-        Q8_3 = 0
-    elif D > 0:
-        Q8_3 = Fraction(C, D)
-    elif C > 0 and D <= 0:
-        Q8_3 = math.inf
-    Q8_3 = 0 if U <= 1 else Q8_3
-
-    E = (Xu - 1) * frac_ms + (V - U - Xu) * Fraction(1, 2) + U * (-1 * frac_ms + V - 1)
-    F = Xu * (V - 1) + U * (V - 2)
-    G = frac_ms - (V - U + 1 - Xu1) * Fraction(1, 2) - Xu1 * (1 - frac_ms)
-    H = Xu1 * (V - 1) + (U - 1)
-
-    Q8_5 = 0
-    if E <= 0:
-        Q8_5 = 0
-    elif G <= 0:
-        Q8_5 = 0
-    elif E > 0 and F > 0 and G > 0 and H > 0:
-        Q8_5 = min(Fraction(E, F), Fraction(G, H))
-    elif E > 0 and F > 0 and G > 0 and H <= 0:
-        Q8_5 = Fraction(E, F)
-    elif E > 0 and F <= 0 and G > 0 and H > 0:
-        Q8_5 = Fraction(G, H)
-    elif E > 0 and F <= 0 and G > 0 and H <= 0:
-        Q8_5 = math.inf
-
-    LHS = max(Fraction(V - 2, 2 * V - 3), Q8_2, Q8_3, Q8_5)
-    RHS = min(Fraction(m, s * V), Fraction(V - 1 - frac_ms, V - 1),
-              Fraction(frac_ms - Fraction(1, 2), V - 1))
-
-    return LHS if LHS <= RHS else 1
+    return min(alpha_1, alpha_2)
 
 
 def f(m, s):
     fc = floor_ceiling(m, s)
     dk, dk_type = find_dk(m, s)
     dkp, dkp_type = find_dkp(m, s)
-    h1 = half_one(m, s)
-    h2 = half_two(m, s)
+    h = half(m, s)
     bm = BuddyMatch.f(m, s) if calcSv(m, s)[0] == 3 else 1
-    results = [fc, h1, h2, dk, dkp, bm]
+    results = [fc, h, dk, dkp, bm]
     ans = min(results)
     ans_type = ''
-    result_types = ['Floor-Ceiling', 'HALF-ONE', 'HALF-TWO', dk_type, dkp_type, 'BM']
+    result_types = ['Floor-Ceiling', 'HALF', dk_type, dkp_type, 'BM']
     for i in range(0, len(results)):
         if results[i] == ans:
             ans_type = result_types[i]
@@ -311,21 +214,23 @@ def f(m, s):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) == 3:
-        m = int(sys.argv[1])
-        s = int(sys.argv[2])
-        ans, ans_type = f(m, s)
-        print('For m = %d and for s = %d, f(m,s) has an upper bound of %s.' % (m, s, ans))
-        print('This is proven by the %s theorem.' % ans_type)
+    print(f(31, 26))
 
-    if len(sys.argv) == 5:
-        m_l = int(sys.argv[1])
-        m_u = int(sys.argv[2])
-        s_l = int(sys.argv[3])
-        s_u = int(sys.argv[4])
-
-        for s in range(s_l, s_u + 1):
-            for m in range(m_l if m_l > s else s + 1, m_u + 1):
-                ans, ans_type = f(m, s)
-                print('For m = %d and for s = %d, f(m,s) has an upper bound of %s.' % (m, s, ans))
-                print('This is proven by the %s theorem.' % ans_type)
+    # if len(sys.argv) == 3:
+    #     m = int(sys.argv[1])
+    #     s = int(sys.argv[2])
+    #     ans, ans_type = f(m, s)
+    #     print('For m = %d and for s = %d, f(m,s) has an upper bound of %s.' % (m, s, ans))
+    #     print('This is proven by the %s theorem.' % ans_type)
+    #
+    # if len(sys.argv) == 5:
+    #     m_l = int(sys.argv[1])
+    #     m_u = int(sys.argv[2])
+    #     s_l = int(sys.argv[3])
+    #     s_u = int(sys.argv[4])
+    #
+    #     for s in range(s_l, s_u + 1):
+    #         for m in range(m_l if m_l > s else s + 1, m_u + 1):
+    #             ans, ans_type = f(m, s)
+    #             print('For m = %d and for s = %d, f(m,s) has an upper bound of %s.' % (m, s, ans))
+    #             print('This is proven by the %s theorem.' % ans_type)
