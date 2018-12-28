@@ -1,6 +1,7 @@
 import fms
 from fractions import Fraction
 from bigrun import lcm
+import sys
 
 
 def make_common_frac(fracs):
@@ -8,10 +9,23 @@ def make_common_frac(fracs):
     for frac in fracs:
         univ_lcm = lcm(univ_lcm, frac.denominator)
 
-    result = []
-    for frac in fracs:
-        result.append('\\frac{%d}{%d}' % (int(frac.numerator * (univ_lcm / frac.denominator)), univ_lcm))
+    return ['\\frac{%d}{%d}' % (int(frac.numerator * (univ_lcm / frac.denominator)), univ_lcm) for frac in fracs]
 
+
+def data_to_latex(share_strs, frac_strs):
+    result = '\\[\n \\begin{array}{%s} \n' % ('c' * (len(frac_strs) * 2 - 1))
+    if len(share_strs) < len(frac_strs) - 1:
+        for share in share_strs:
+            result += '( & %s & )[ & 0 & ]' % share
+        result = result[:-9] + ' \\cr\n'
+    else:
+        for share in share_strs:
+            result += '( & %s & )' % share
+        result += ' \\cr\n'
+    for frac in frac_strs:
+        result += '%s & & ' % frac
+    result = result[:-5] + ' \\cr\n'
+    result += '\\end{array} \n\\]'
     return result
 
 
@@ -26,41 +40,58 @@ def make_diagram(m, s, ans):
         g = 1 - h if g > 1 - h else g
         h = 1 - g if h < 1 - g else h
 
+        if g == h:
+            frac_strs = make_common_frac([ans, h, 1 - ans])
+            sv_str = '\hbox{%d %d-shs}' % (V * sv, V)
+            sv1_str = '\hbox{%d %d-shs}' % ((V - 1) * sv1, V - 1)
+
+            return data_to_latex([sv_str, sv1_str], frac_strs)
+
         frac_strs = make_common_frac([ans, g, h, 1 - ans])
         sv_str = '\hbox{%d %d-shs}' % (V * sv, V)
         sv1_str = '\hbox{%d %d-shs}' % ((V - 1) * sv1, V - 1)
 
-        return '\\[\n \\begin{array}{ccccccc} \n' \
-               '( & %s & )[ & 0 & ]( & %s & ) \\cr\n' \
-               '%s & & %s & & %s & & %s \\cr\n' \
-               '\\end{array} \n\\]' % (sv_str, sv1_str, frac_strs[0], frac_strs[1], frac_strs[2], frac_strs[3])
+        return data_to_latex([sv_str, sv1_str], frac_strs)
 
     if g > Fraction(1, 2):
+        if g == h:
+            frac_strs = make_common_frac([ans, 1 - g, g, 1 - ans])
+            sv_low_str = '\hbox{%d S%d-shs}' % ((V - 1) * sv1, V)
+            sv_high_str = '\hbox{%d L%d-shs}' % (V * sv - (V - 1) * sv1, V)
+            sv1_str = '\hbox{%d %d-shs}' % ((V - 1) * sv1, V - 1)
+
+            return data_to_latex([sv_low_str, sv_high_str, sv1_str], frac_strs)
+
         frac_strs = make_common_frac([ans, 1-h, 1-g, g, h, 1 - ans])
         sv_low_str = '\hbox{%d S%d-shs}' % ((V - 1) * sv1, V)
         sv_high_str = '\hbox{%d L%d-shs}' % (V * sv - (V - 1) * sv1, V)
         sv1_str = '\hbox{%d %d-shs}' % ((V - 1) * sv1, V - 1)
 
-        return '\\[\n \\begin{array}{ccccccccccc} \n' \
-               '( & %s & )[ & 0 & ]( & %s & )[ & 0 & ]( & %s & ) \\cr\n' \
-               '%s & & %s & & %s & & %s & & %s & & %s \\cr\n' \
-               '\\end{array} \n\\]' % (sv_low_str, sv_high_str, sv1_str, frac_strs[0], frac_strs[1],
-                                       frac_strs[2], frac_strs[3], frac_strs[4], frac_strs[5])
+        return data_to_latex([sv_low_str, sv_high_str, sv1_str], frac_strs)
 
     elif h < Fraction(1, 2):
+        if g == h:
+            frac_strs = make_common_frac([ans, g, 1 - g, 1 - ans])
+            sv_str = '\hbox{%d %d-shs}' % (V * sv, V)
+            sv1_low_str = '\hbox{%d S%d-shs}' % ((V - 1) * sv1 - V * sv, V - 1)
+            sv1_high_str = '\hbox{%d L%d-shs}' % (V * sv, V - 1)
+
+            return data_to_latex([sv_str, sv1_low_str, sv1_high_str], frac_strs)
+
         frac_strs = make_common_frac([ans, g, h, 1 - h, 1 - g, 1 - ans])
         sv_str = '\hbox{%d %d-shs}' % (V * sv, V)
         sv1_low_str = '\hbox{%d S%d-shs}' % ((V - 1) * sv1 - V * sv, V - 1)
         sv1_high_str = '\hbox{%d L%d-shs}' % (V * sv, V - 1)
 
-        return '\\[\n \\begin{array}{ccccccccccc} \n' \
-               '( & %s & )[ & 0 & ]( & %s & )[ & 0 & ]( & %s & ) \\cr\n' \
-               '%s & & %s & & %s & & %s & & %s & & %s \\cr\n' \
-               '\\end{array} \n\\]' % (sv_str, sv1_low_str, sv1_high_str, frac_strs[0], frac_strs[1],
-                                       frac_strs[2], frac_strs[3], frac_strs[4], frac_strs[5])
+        return data_to_latex([sv_str, sv1_low_str, sv1_high_str], frac_strs)
 
 
 if __name__ == '__main__':
-    m = 10
-    s = 9
-    print(make_diagram(m, s, fms.f(m, s)[0]))
+    m = int(sys.argv[1])
+    s = int(sys.argv[2])
+    try:
+        ans = fms.f(m, s)[0] if len(sys.argv) == 3 \
+            else Fraction(int(sys.argv[3].split('/')[0]), int(sys.argv[3].split('/')[1]))
+        print(make_diagram(m, s, ans))
+    except ValueError:
+        print('Incorrect arguments.')
