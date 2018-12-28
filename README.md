@@ -16,6 +16,14 @@ Run this program to find the upper bound and lower bound for f(m,s).
 For example: `./muf 5 3` will return the upper bound of f(5,3), the method used to find it, the lower bound of f(5,3), and the procedure used to cut m muffins for s people with the lower bound as the smallest piece.
 (Replace `muf` with `muf3` or `muf36` depending on what your corresponding command is for `python`)
 
+
+### diag
+
+Run this program to generate a diagram for a proof of upper bound.
+
+For example: `./diag 11 5` or `./diag 11 5 13/30` will return the latex code for a diagram to help prove that f(11,5) = 13/30
+
+
 ### fms.py - named for f(m,s)
 Run this program to find the upper bound for f(m,s).
 
