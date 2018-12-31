@@ -36,6 +36,12 @@ def make_diagram(m, s, ans):
     g = Fraction(m, s) - ans * (V - 1)
     h = Fraction(m, s) - V + 2 + ans * (V - 2)
 
+    frac_strs = make_common_frac([ans, g, h, 1 - ans]) if g != h else make_common_frac([ans, g, 1 - ans])
+    sv_str = '\hbox{%d %d-shs}' % (V * sv, V)
+    sv1_str = '\hbox{%d %d-shs}' % ((V - 1) * sv1, V - 1)
+
+    pre_flip_str = data_to_latex([sv_str, sv1_str], frac_strs) + '\n\n'
+
     if g <= Fraction(1, 2) <= h:
         g = 1 - h if g > 1 - h else g
         h = 1 - g if h < 1 - g else h
@@ -45,29 +51,30 @@ def make_diagram(m, s, ans):
             sv_str = '\hbox{%d %d-shs}' % (V * sv, V)
             sv1_str = '\hbox{%d %d-shs}' % ((V - 1) * sv1, V - 1)
 
-            return data_to_latex([sv_str, sv1_str], frac_strs)
+            return pre_flip_str + data_to_latex([sv_str, sv1_str], frac_strs)
 
         frac_strs = make_common_frac([ans, g, h, 1 - ans])
         sv_str = '\hbox{%d %d-shs}' % (V * sv, V)
         sv1_str = '\hbox{%d %d-shs}' % ((V - 1) * sv1, V - 1)
 
-        return data_to_latex([sv_str, sv1_str], frac_strs)
+        return pre_flip_str + data_to_latex([sv_str, sv1_str], frac_strs)
 
     if g > Fraction(1, 2):
+
         if g == h:
             frac_strs = make_common_frac([ans, 1 - g, g, 1 - ans])
             sv_low_str = '\hbox{%d S%d-shs}' % ((V - 1) * sv1, V)
             sv_high_str = '\hbox{%d L%d-shs}' % (V * sv - (V - 1) * sv1, V)
             sv1_str = '\hbox{%d %d-shs}' % ((V - 1) * sv1, V - 1)
 
-            return data_to_latex([sv_low_str, sv_high_str, sv1_str], frac_strs)
+            return pre_flip_str + data_to_latex([sv_low_str, sv_high_str, sv1_str], frac_strs)
 
         frac_strs = make_common_frac([ans, 1-h, 1-g, g, h, 1 - ans])
         sv_low_str = '\hbox{%d S%d-shs}' % ((V - 1) * sv1, V)
         sv_high_str = '\hbox{%d L%d-shs}' % (V * sv - (V - 1) * sv1, V)
         sv1_str = '\hbox{%d %d-shs}' % ((V - 1) * sv1, V - 1)
 
-        return data_to_latex([sv_low_str, sv_high_str, sv1_str], frac_strs)
+        return pre_flip_str + data_to_latex([sv_low_str, sv_high_str, sv1_str], frac_strs)
 
     elif h < Fraction(1, 2):
         if g == h:
@@ -76,14 +83,17 @@ def make_diagram(m, s, ans):
             sv1_low_str = '\hbox{%d S%d-shs}' % ((V - 1) * sv1 - V * sv, V - 1)
             sv1_high_str = '\hbox{%d L%d-shs}' % (V * sv, V - 1)
 
-            return data_to_latex([sv_str, sv1_low_str, sv1_high_str], frac_strs)
+            return pre_flip_str + data_to_latex([sv_str, sv1_low_str, sv1_high_str], frac_strs)
 
         frac_strs = make_common_frac([ans, g, h, 1 - h, 1 - g, 1 - ans])
         sv_str = '\hbox{%d %d-shs}' % (V * sv, V)
-        sv1_low_str = '\hbox{%d S%d-shs}' % ((V - 1) * sv1 - V * sv, V - 1)
-        sv1_high_str = '\hbox{%d L%d-shs}' % (V * sv, V - 1)
+        sv1_low_str_sl = '\hbox{%d S%d-shs}' % ((V - 1) * sv1 - V * sv, V - 1)
+        sv1_low_str = '\hbox{%d %d-shs}' % ((V - 1) * sv1 - V * sv, V - 1)
+        sv1_high_str_sl = '\hbox{%d L%d-shs}' % (V * sv, V - 1)
+        sv1_high_str = '\hbox{%d %d-shs}' % (V * sv, V - 1)
 
-        return data_to_latex([sv_str, sv1_low_str, sv1_high_str], frac_strs)
+        return pre_flip_str + data_to_latex([sv_str, sv1_low_str, sv1_high_str], frac_strs) + \
+               data_to_latex([sv_str, sv1_low_str_sl, sv1_high_str_sl], frac_strs)
 
 
 if __name__ == '__main__':
