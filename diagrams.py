@@ -13,7 +13,7 @@ def make_common_frac(fracs):
 
 
 def data_to_latex(share_strs, frac_strs, ob):
-    result = '\\renewcommand{\\ob}[1]{\\frac{#1}{%d}}' \
+    result = '\\renewcommand{\\ob}[1]{\\frac{#1}{%d}}\n\n' \
              '\\[\n \\begin{array}{%s} \n' % (ob, 'c' * (len(frac_strs) * 2 - 1))
     if len(share_strs) < len(frac_strs) - 1:
         for share in share_strs:
@@ -41,69 +41,58 @@ def make_diagram(m, s, ans):
     sv_str = '\hbox{%d %d-shs}' % (V * sv, V)
     sv1_str = '\hbox{%d %d-shs}' % ((V - 1) * sv1, V - 1)
 
-    pre_flip_str = data_to_latex([sv_str, sv1_str], frac_strs, univ_lcm) + '\n\n'
+    result = data_to_latex([sv_str, sv1_str], frac_strs, univ_lcm) + '\n\n'
 
     if g <= Fraction(1, 2) <= h:
         g = 1 - h if g > 1 - h else g
         h = 1 - g if h < 1 - g else h
 
-        if g == h:
-            frac_strs, univ_lcm = make_common_frac([ans, h, 1 - ans])
-            sv_str = '\hbox{%d %d-shs}' % (V * sv, V)
-            sv1_str = '\hbox{%d %d-shs}' % ((V - 1) * sv1, V - 1)
-
-            return pre_flip_str + data_to_latex([sv_str, sv1_str], frac_strs, univ_lcm)
-
-        frac_strs, univ_lcm = make_common_frac([ans, g, h, 1 - ans])
         sv_str = '\hbox{%d %d-shs}' % (V * sv, V)
         sv1_str = '\hbox{%d %d-shs}' % ((V - 1) * sv1, V - 1)
 
-        return pre_flip_str + data_to_latex([sv_str, sv1_str], frac_strs, univ_lcm)
+        if g == h:
+            frac_strs, univ_lcm = make_common_frac([ans, h, 1 - ans])
+            result += data_to_latex([sv_str, sv1_str], frac_strs, univ_lcm)
+        else:
+            frac_strs, univ_lcm = make_common_frac([ans, g, h, 1 - ans])
+            result += data_to_latex([sv_str, sv1_str], frac_strs, univ_lcm)
 
     if g > Fraction(1, 2):
 
-        if g == h:
-            frac_strs, univ_lcm = make_common_frac([ans, 1 - g, g, 1 - ans])
-            sv_low_str_sl = '\hbox{%d S%d-shs}' % ((V - 1) * sv1, V)
-            sv_low_str = '\hbox{%d %d-shs}' % ((V - 1) * sv1, V)
-            sv_high_str_sl = '\hbox{%d L%d-shs}' % (V * sv - (V - 1) * sv1, V)
-            sv_high_str = '\hbox{%d %d-shs}' % (V * sv - (V - 1) * sv1, V)
-            sv1_str = '\hbox{%d %d-shs}' % ((V - 1) * sv1, V - 1)
-
-            return pre_flip_str + data_to_latex([sv_low_str, sv_high_str, sv1_str], frac_strs, univ_lcm) + \
-                data_to_latex([sv_low_str_sl, sv_high_str_sl, sv1_str], frac_strs, univ_lcm)
-
-        frac_strs, univ_lcm = make_common_frac([ans, 1-h, 1-g, g, h, 1 - ans])
-        sv_low_str_sl = '\hbox{%d %d-shs}' % ((V - 1) * sv1, V)
-        sv_low_str = '\hbox{%d S%d-shs}' % ((V - 1) * sv1, V)
-        sv_high_str_sl = '\hbox{%d %d-shs}' % (V * sv - (V - 1) * sv1, V)
-        sv_high_str = '\hbox{%d L%d-shs}' % (V * sv - (V - 1) * sv1, V)
+        sv_low_str_sl = '\hbox{%d S%d-shs}' % ((V - 1) * sv1, V)
+        sv_low_str = '\hbox{%d %d-shs}' % ((V - 1) * sv1, V)
+        sv_high_str_sl = '\hbox{%d L%d-shs}' % (V * sv - (V - 1) * sv1, V)
+        sv_high_str = '\hbox{%d %d-shs}' % (V * sv - (V - 1) * sv1, V)
         sv1_str = '\hbox{%d %d-shs}' % ((V - 1) * sv1, V - 1)
 
-        return pre_flip_str + data_to_latex([sv_low_str, sv_high_str, sv1_str], frac_strs, univ_lcm) + \
-            data_to_latex([sv_low_str_sl, sv_high_str_sl, sv1_str], frac_strs, univ_lcm)
+        if g == h:
+            frac_strs, univ_lcm = make_common_frac([ans, 1 - g, g, 1 - ans])
+        else:
+            frac_strs, univ_lcm = make_common_frac([ans, 1 - h, 1 - g, g, h, 1 - ans])
+
+        result += data_to_latex([sv_low_str, sv_high_str, sv1_str], frac_strs, univ_lcm) + \
+            '\n\n' + data_to_latex([sv_low_str_sl, sv_high_str_sl, sv1_str], frac_strs, univ_lcm)
 
     elif h < Fraction(1, 2):
-        if g == h:
-            frac_strs, univ_lcm = make_common_frac([ans, g, 1 - g, 1 - ans])
-            sv_str = '\hbox{%d %d-shs}' % (V * sv, V)
-            sv1_low_str_sl = '\hbox{%d S%d-shs}' % ((V - 1) * sv1 - V * sv, V - 1)
-            sv1_low_str = '\hbox{%d %d-shs}' % ((V - 1) * sv1 - V * sv, V - 1)
-            sv1_high_str_sl = '\hbox{%d L%d-shs}' % (V * sv, V - 1)
-            sv1_high_str = '\hbox{%d %d-shs}' % (V * sv, V - 1)
 
-            return pre_flip_str + data_to_latex([sv_str, sv1_low_str, sv1_high_str], frac_strs, univ_lcm) + \
-                data_to_latex([sv_str, sv1_low_str_sl, sv1_high_str_sl], frac_strs, univ_lcm)
-
-        frac_strs, univ_lcm = make_common_frac([ans, g, h, 1 - h, 1 - g, 1 - ans])
         sv_str = '\hbox{%d %d-shs}' % (V * sv, V)
         sv1_low_str_sl = '\hbox{%d S%d-shs}' % ((V - 1) * sv1 - V * sv, V - 1)
         sv1_low_str = '\hbox{%d %d-shs}' % ((V - 1) * sv1 - V * sv, V - 1)
         sv1_high_str_sl = '\hbox{%d L%d-shs}' % (V * sv, V - 1)
         sv1_high_str = '\hbox{%d %d-shs}' % (V * sv, V - 1)
 
-        return pre_flip_str + data_to_latex([sv_str, sv1_low_str, sv1_high_str], frac_strs, univ_lcm) + \
-            data_to_latex([sv_str, sv1_low_str_sl, sv1_high_str_sl], frac_strs, univ_lcm)
+        if g == h:
+            frac_strs, univ_lcm = make_common_frac([ans, g, 1 - g, 1 - ans])
+        else:
+            frac_strs, univ_lcm = make_common_frac([ans, g, h, 1 - h, 1 - g, 1 - ans])
+
+        result += data_to_latex([sv_str, sv1_low_str, sv1_high_str], frac_strs, univ_lcm) + \
+            '\n\n' + data_to_latex([sv_str, sv1_low_str_sl, sv1_high_str_sl], frac_strs, univ_lcm)
+
+        # if V == 3:
+        #     result += '\n\n'
+
+    return result
 
 
 if __name__ == '__main__':
