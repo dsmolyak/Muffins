@@ -73,6 +73,32 @@ def make_diagram(m, s, ans):
         result += data_to_latex([sv_low_str, sv_high_str, sv1_str], frac_strs, univ_lcm) + \
             '\n\n' + data_to_latex([sv_low_str_sl, sv_high_str_sl, sv1_str], frac_strs, univ_lcm)
 
+        result += '\n\n\\bigskip\\bigskip\\bigskip\n\nThe following picture is just of the %d shares:\n\n' % V
+        split_str = '\hbox{%d %d-shs}' % ((V * sv - (V - 1) * sv1) / 2, V)
+        if g == h:
+            f_s, univ_lcm = make_common_frac([ans, 1 - h, Fraction(1, 2), g])
+            result += '\\renewcommand{\\ob}[1]{\\frac{#1}{%d}}\n\n\[\n\\begin{array}{cccccccc}\n' % univ_lcm + \
+                      '( & %s & )( & %s & | & %s & )\\cr\n' % (sv_low_str, split_str, split_str) + \
+                      '%s & & %s & & %s & & %s\\cr\n' % (f_s[0], f_s[1], f_s[2], f_s[3])
+            result += '\\end{array} \n\\]'
+            result += '\n\nWe define the following intervals: \n\\begin{enumerate}\n' + \
+                      '\item\n$I_1=(%s,%s)$\n' % (f_s[0], f_s[1]) + \
+                      '\item\n$I_2=(%s,%s)$\n' % (f_s[1], f_s[2]) + \
+                      '\item\n$I_3=(%s,%s)$\n' % (f_s[2], f_s[3]) + \
+                      '\end{enumerate}\n'
+        else:
+            f_s, univ_lcm = make_common_frac([ans, 1 - h, 1 - g, Fraction(1, 2), g])
+            result += '\\renewcommand{\\ob}[1]{\\frac{#1}{%d}}\n\n\[\n\\begin{array}{ccccccccc}\n' % univ_lcm + \
+                      '( & %s & )[ & 0 & ]( & %s & | & %s & )\\cr\n' % (sv_low_str, split_str, split_str) + \
+                      '%s & & %s & & %s & & %s & & %s\\cr\n' % (f_s[0], f_s[1], f_s[2], f_s[3], f_s[4])
+            result += '\\end{array} \n\\]'
+
+            result += '\n\nWe define the following intervals: \n\\begin{enumerate}\n' + \
+                      '\item\n$I_1=(%s,%s)$\n' % (f_s[0], f_s[1]) + \
+                      '\item\n$I_2=(%s,%s)$\n' % (f_s[2], f_s[3]) + \
+                      '\item\n$I_3=(%s,%s)$\n' % (f_s[3], f_s[4]) + \
+                      '\end{enumerate}\n'
+
     elif h < Fraction(1, 2):
 
         sv_str = '\hbox{%d %d-shs}' % (V * sv, V)
@@ -89,8 +115,31 @@ def make_diagram(m, s, ans):
         result += data_to_latex([sv_str, sv1_low_str, sv1_high_str], frac_strs, univ_lcm) + \
             '\n\n' + data_to_latex([sv_str, sv1_low_str_sl, sv1_high_str_sl], frac_strs, univ_lcm)
 
-        # if V == 3:
-        #     result += '\n\n'
+        result += '\n\n\\bigskip\\bigskip\\bigskip\n\nThe following picture is just of the %d shares:\n\n' % (V - 1)
+        split_str = '\hbox{%d %d-shs}' % (((V - 1) * sv1 - V * sv) / 2, V - 1)
+        if g == h:
+            f_s, univ_lcm = make_common_frac([h, Fraction(1, 2), 1 - g, 1 - ans])
+            result += '\\renewcommand{\\ob}[1]{\\frac{#1}{%d}}\n\n\[\n\\begin{array}{cccccccc}\n' % univ_lcm + \
+                      '( & %s & | & %s & )( & %s & )\\cr\n' % (split_str, split_str, sv1_high_str) + \
+                      '%s & & %s & & %s & & %s\\cr\n' % (f_s[0], f_s[1], f_s[2], f_s[3])
+            result += '\\end{array} \n\\]'
+            result += '\n\nWe define the following intervals: \n\\begin{enumerate}\n' + \
+                      '\item\n$I_1=(%s,%s)$\n' % (f_s[0], f_s[1]) + \
+                      '\item\n$I_2=(%s,%s)$\n' % (f_s[1], f_s[2]) + \
+                      '\item\n$I_3=(%s,%s)$\n' % (f_s[2], f_s[3]) + \
+                      '\end{enumerate}\n'
+        else:
+            f_s, univ_lcm = make_common_frac([h, Fraction(1, 2), 1 - h, 1 - g, 1 - ans])
+            result += '\\renewcommand{\\ob}[1]{\\frac{#1}{%d}}\n\n\[\n\\begin{array}{ccccccccc}\n' % univ_lcm + \
+                      '( & %s & | & %s & )[ & 0 & ]( & %s & )\\cr\n' % (split_str, split_str, sv1_high_str) + \
+                      '%s & & %s & & %s & & %s & & %s\\cr\n' % (f_s[0], f_s[1], f_s[2], f_s[3], f_s[4])
+            result += '\\end{array} \n\\]'
+
+            result += '\n\nWe define the following intervals: \n\\begin{enumerate}\n' + \
+                      '\item\n$I_1=(%s,%s)$\n' % (f_s[0], f_s[1]) + \
+                      '\item\n$I_2=(%s,%s)$\n' % (f_s[1], f_s[2]) + \
+                      '\item\n$I_3=(%s,%s)$\n' % (f_s[3], f_s[4]) + \
+                      '\end{enumerate}\n'
 
     return result
 
