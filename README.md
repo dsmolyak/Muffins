@@ -22,6 +22,8 @@ For example: `./muf 5 3` will return the upper bound of f(5,3), the method used 
 Run this program to generate a diagram for a proof of upper bound.
 
 For example: `./diag 11 5` or `./diag 11 5 13/30` will return the latex code for a diagram to help prove that f(11,5) = 13/30
+(Replace `diag` with `diag3` or `diag36` depending on what your corresponding command is for `python`)
+
 
 
 ### fms.py - named for f(m,s)
