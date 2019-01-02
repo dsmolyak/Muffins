@@ -214,7 +214,7 @@ def f(m, s):
 
 
 if __name__ == '__main__':
-    print(f(31, 26))
+    print(f(23, 13))
 
     # if len(sys.argv) == 3:
     #     m = int(sys.argv[1])
