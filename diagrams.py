@@ -12,9 +12,9 @@ def make_common_frac(fracs):
     return ['\\ob{%d}' % int(frac.numerator * (univ_lcm / frac.denominator)) for frac in fracs], univ_lcm
 
 
-def data_to_latex(share_strs, frac_strs, ob):
+def data_to_latex(share_strs, frac_strs, univ_lcm):
     result = '\\renewcommand{\\ob}[1]{\\frac{#1}{%d}}\n\n' \
-             '\\[\n \\begin{array}{%s} \n' % (ob, 'c' * (len(frac_strs) * 2 - 1))
+             '\\[\n \\begin{array}{%s} \n' % (univ_lcm, 'c' * (len(frac_strs) * 2 - 1))
     if len(share_strs) < len(frac_strs) - 1:
         for share in share_strs:
             result += '( & %s & )[ & 0 & ]' % share
@@ -27,6 +27,37 @@ def data_to_latex(share_strs, frac_strs, ob):
         result += '%s & & ' % frac
     result = result[:-5] + ' \\cr\n'
     result += '\\end{array} \n\\]'
+    return result
+
+
+def split_to_latex(share_strs, frac_strs, univ_lcm, share_size, low):
+    result = '\n\n\\bigskip\n\\bigskip\n\\bigskip\n\n' \
+             'The following picture is just of the %d shares:\n\n' % share_size
+    result += '\\renewcommand{\\ob}[1]{\\frac{#1}{%d}}\n\n' \
+              '\[\n\\begin{array}{%s}\n' % (univ_lcm, 'c' * (len(frac_strs) * 2 - 1))
+    ind = [0, 1, 1, 2, 2, 3]
+    if low:
+        if len(frac_strs) == 4:
+            result += '( & %s & )( & %s & | & %s & )\\cr\n' % (share_strs[0], share_strs[1], share_strs[2])
+        else:
+            result += '( & %s & )[ & 0 & ]( & %s & | & %s & )\\cr\n' % (share_strs[0], share_strs[1], share_strs[2])
+            ind = [0, 1, 2, 3, 3, 4]
+    else:
+        if len(frac_strs) == 4:
+            result += '( & %s & | & %s & )( & %s & )\\cr\n' % (share_strs[0], share_strs[1], share_strs[2])
+        else:
+            result += '( & %s & | & %s & )[ & 0 & ]( & %s & )\\cr\n' % (share_strs[0], share_strs[1], share_strs[2])
+            ind = [0, 1, 1, 2, 3, 4]
+    for frac in frac_strs:
+        result += '%s & & ' % frac
+    result = result[:-5] + ' \\cr\n'
+    result += '\\end{array} \n\\]'
+    result += '\n\nWe define the following intervals: \n\\begin{enumerate}\n' + \
+              '\item\n$I_1=(%s,%s)$\n' % (frac_strs[ind[0]], frac_strs[ind[1]]) + \
+              '\item\n$I_2=(%s,%s)$\n' % (frac_strs[ind[2]], frac_strs[ind[3]]) + \
+              '\item\n$I_3=(%s,%s)$\n' % (frac_strs[ind[4]], frac_strs[ind[5]]) + \
+              '\end{enumerate}\n'
+
     return result
 
 
@@ -59,87 +90,39 @@ def make_diagram(m, s, ans):
 
     if g > Fraction(1, 2):
 
-        sv_low_str_sl = '\hbox{%d S%d-shs}' % ((V - 1) * sv1, V)
         sv_low_str = '\hbox{%d %d-shs}' % ((V - 1) * sv1, V)
-        sv_high_str_sl = '\hbox{%d L%d-shs}' % (V * sv - (V - 1) * sv1, V)
         sv_high_str = '\hbox{%d %d-shs}' % (V * sv - (V - 1) * sv1, V)
         sv1_str = '\hbox{%d %d-shs}' % ((V - 1) * sv1, V - 1)
-
         if g == h:
             frac_strs, univ_lcm = make_common_frac([ans, 1 - g, g, 1 - ans])
         else:
             frac_strs, univ_lcm = make_common_frac([ans, 1 - h, 1 - g, g, h, 1 - ans])
+        result += data_to_latex([sv_low_str, sv_high_str, sv1_str], frac_strs, univ_lcm)
 
-        result += data_to_latex([sv_low_str, sv_high_str, sv1_str], frac_strs, univ_lcm) + \
-            '\n\n' + data_to_latex([sv_low_str_sl, sv_high_str_sl, sv1_str], frac_strs, univ_lcm)
-
-        result += '\n\n\\bigskip\\bigskip\\bigskip\n\nThe following picture is just of the %d shares:\n\n' % V
         split_str = '\hbox{%d %d-shs}' % ((V * sv - (V - 1) * sv1) / 2, V)
         if g == h:
-            f_s, univ_lcm = make_common_frac([ans, 1 - h, Fraction(1, 2), g])
-            result += '\\renewcommand{\\ob}[1]{\\frac{#1}{%d}}\n\n\[\n\\begin{array}{cccccccc}\n' % univ_lcm + \
-                      '( & %s & )( & %s & | & %s & )\\cr\n' % (sv_low_str, split_str, split_str) + \
-                      '%s & & %s & & %s & & %s\\cr\n' % (f_s[0], f_s[1], f_s[2], f_s[3])
-            result += '\\end{array} \n\\]'
-            result += '\n\nWe define the following intervals: \n\\begin{enumerate}\n' + \
-                      '\item\n$I_1=(%s,%s)$\n' % (f_s[0], f_s[1]) + \
-                      '\item\n$I_2=(%s,%s)$\n' % (f_s[1], f_s[2]) + \
-                      '\item\n$I_3=(%s,%s)$\n' % (f_s[2], f_s[3]) + \
-                      '\end{enumerate}\n'
+            frac_strs, univ_lcm = make_common_frac([ans, 1 - h, Fraction(1, 2), g])
         else:
-            f_s, univ_lcm = make_common_frac([ans, 1 - h, 1 - g, Fraction(1, 2), g])
-            result += '\\renewcommand{\\ob}[1]{\\frac{#1}{%d}}\n\n\[\n\\begin{array}{ccccccccc}\n' % univ_lcm + \
-                      '( & %s & )[ & 0 & ]( & %s & | & %s & )\\cr\n' % (sv_low_str, split_str, split_str) + \
-                      '%s & & %s & & %s & & %s & & %s\\cr\n' % (f_s[0], f_s[1], f_s[2], f_s[3], f_s[4])
-            result += '\\end{array} \n\\]'
-
-            result += '\n\nWe define the following intervals: \n\\begin{enumerate}\n' + \
-                      '\item\n$I_1=(%s,%s)$\n' % (f_s[0], f_s[1]) + \
-                      '\item\n$I_2=(%s,%s)$\n' % (f_s[2], f_s[3]) + \
-                      '\item\n$I_3=(%s,%s)$\n' % (f_s[3], f_s[4]) + \
-                      '\end{enumerate}\n'
+            frac_strs, univ_lcm = make_common_frac([ans, 1 - h, 1 - g, Fraction(1, 2), g])
+        result += split_to_latex([sv_low_str, split_str, split_str], frac_strs, univ_lcm, V - 1, True)
 
     elif h < Fraction(1, 2):
 
         sv_str = '\hbox{%d %d-shs}' % (V * sv, V)
-        sv1_low_str_sl = '\hbox{%d S%d-shs}' % ((V - 1) * sv1 - V * sv, V - 1)
         sv1_low_str = '\hbox{%d %d-shs}' % ((V - 1) * sv1 - V * sv, V - 1)
-        sv1_high_str_sl = '\hbox{%d L%d-shs}' % (V * sv, V - 1)
         sv1_high_str = '\hbox{%d %d-shs}' % (V * sv, V - 1)
-
         if g == h:
             frac_strs, univ_lcm = make_common_frac([ans, g, 1 - g, 1 - ans])
         else:
             frac_strs, univ_lcm = make_common_frac([ans, g, h, 1 - h, 1 - g, 1 - ans])
+        result += data_to_latex([sv_str, sv1_low_str, sv1_high_str], frac_strs, univ_lcm)
 
-        result += data_to_latex([sv_str, sv1_low_str, sv1_high_str], frac_strs, univ_lcm) + \
-            '\n\n' + data_to_latex([sv_str, sv1_low_str_sl, sv1_high_str_sl], frac_strs, univ_lcm)
-
-        result += '\n\n\\bigskip\\bigskip\\bigskip\n\nThe following picture is just of the %d shares:\n\n' % (V - 1)
         split_str = '\hbox{%d %d-shs}' % (((V - 1) * sv1 - V * sv) / 2, V - 1)
         if g == h:
-            f_s, univ_lcm = make_common_frac([h, Fraction(1, 2), 1 - g, 1 - ans])
-            result += '\\renewcommand{\\ob}[1]{\\frac{#1}{%d}}\n\n\[\n\\begin{array}{cccccccc}\n' % univ_lcm + \
-                      '( & %s & | & %s & )( & %s & )\\cr\n' % (split_str, split_str, sv1_high_str) + \
-                      '%s & & %s & & %s & & %s\\cr\n' % (f_s[0], f_s[1], f_s[2], f_s[3])
-            result += '\\end{array} \n\\]'
-            result += '\n\nWe define the following intervals: \n\\begin{enumerate}\n' + \
-                      '\item\n$I_1=(%s,%s)$\n' % (f_s[0], f_s[1]) + \
-                      '\item\n$I_2=(%s,%s)$\n' % (f_s[1], f_s[2]) + \
-                      '\item\n$I_3=(%s,%s)$\n' % (f_s[2], f_s[3]) + \
-                      '\end{enumerate}\n'
+            frac_strs, univ_lcm = make_common_frac([h, Fraction(1, 2), 1 - g, 1 - ans])
         else:
-            f_s, univ_lcm = make_common_frac([h, Fraction(1, 2), 1 - h, 1 - g, 1 - ans])
-            result += '\\renewcommand{\\ob}[1]{\\frac{#1}{%d}}\n\n\[\n\\begin{array}{ccccccccc}\n' % univ_lcm + \
-                      '( & %s & | & %s & )[ & 0 & ]( & %s & )\\cr\n' % (split_str, split_str, sv1_high_str) + \
-                      '%s & & %s & & %s & & %s & & %s\\cr\n' % (f_s[0], f_s[1], f_s[2], f_s[3], f_s[4])
-            result += '\\end{array} \n\\]'
-
-            result += '\n\nWe define the following intervals: \n\\begin{enumerate}\n' + \
-                      '\item\n$I_1=(%s,%s)$\n' % (f_s[0], f_s[1]) + \
-                      '\item\n$I_2=(%s,%s)$\n' % (f_s[1], f_s[2]) + \
-                      '\item\n$I_3=(%s,%s)$\n' % (f_s[3], f_s[4]) + \
-                      '\end{enumerate}\n'
+            frac_strs, univ_lcm = make_common_frac([h, Fraction(1, 2), 1 - h, 1 - g, 1 - ans])
+        result += split_to_latex([split_str, split_str, sv1_high_str], frac_strs, univ_lcm, V - 1, False)
 
     return result
 
