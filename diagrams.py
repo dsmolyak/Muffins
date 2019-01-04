@@ -72,6 +72,22 @@ def make_diagram(m, s, ans):
     sv_str = '\hbox{%d %d-shs}' % (V * sv, V)
     sv1_str = '\hbox{%d %d-shs}' % ((V - 1) * sv1, V - 1)
 
+    if g > h:
+        return data_to_latex([sv_str], frac_strs[:2], univ_lcm) + '\n\n' \
+               + data_to_latex([sv1_str], frac_strs[2:], univ_lcm)
+
+    if h > 1 - ans:
+        return '\\renewcommand{\\ob}[1]{\\frac{#1}{%d}}\n\n\\[\n \\begin{array}{ccccc}\n' % univ_lcm + \
+               '( & %s & )[ & 0 & ]\\cr\n' % sv_str + \
+               '%s & & %s & & %s\\cr\n' % (frac_strs[0], frac_strs[1], frac_strs[3]) + \
+               '\\end{array} \n\\]'
+
+    if g < ans:
+        return '\\renewcommand{\\ob}[1]{\\frac{#1}{%d}}\n\n\\[\n \\begin{array}{ccccc}\n' % univ_lcm + \
+               '[ & 0 & ]( & %s & )\\cr\n' % sv1_str + \
+               '%s & & %s & & %s\\cr\n' % (frac_strs[0], frac_strs[2], frac_strs[3]) + \
+               '\\end{array} \n\\]'
+
     result = data_to_latex([sv_str, sv1_str], frac_strs, univ_lcm) + '\n\n'
 
     if g <= Fraction(1, 2) <= h:
