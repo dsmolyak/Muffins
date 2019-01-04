@@ -73,8 +73,15 @@ def make_diagram(m, s, ans):
     sv1_str = '\hbox{%d %d-shs}' % ((V - 1) * sv1, V - 1)
 
     if g > h:
-        return data_to_latex([sv_str], frac_strs[:2], univ_lcm) + '\n\n' \
-               + data_to_latex([sv1_str], frac_strs[2:], univ_lcm)
+        v_shares = '\\renewcommand{\\ob}[1]{\\frac{#1}{%d}}\n\n\\[\n \\begin{array}{ccccc}\n' % univ_lcm + \
+                   '( & %s & )( & \hbox{0 %d-shs} & )\\cr\n' % (sv_str, V) + \
+                   '%s & & %s & & %s\\cr\n' % (frac_strs[0], frac_strs[1], frac_strs[3]) + \
+                   '\\end{array} \n\\]'
+        v1_shares = '\\renewcommand{\\ob}[1]{\\frac{#1}{%d}}\n\n\\[\n \\begin{array}{ccccc}\n' % univ_lcm + \
+                    '( & \hbox{0 %d-shs} & )( & %s & )\\cr\n' % (V - 1, sv1_str) + \
+                    '%s & & %s & & %s\\cr\n' % (frac_strs[0], frac_strs[2], frac_strs[3]) + \
+                    '\\end{array} \n\\]'
+        return v_shares + '\n\n' + v1_shares
 
     if h > 1 - ans:
         return '\\renewcommand{\\ob}[1]{\\frac{#1}{%d}}\n\n\\[\n \\begin{array}{ccccc}\n' % univ_lcm + \
