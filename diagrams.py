@@ -13,7 +13,7 @@ def make_common_frac(fracs):
 
 
 def data_to_latex(share_strs, frac_strs, univ_lcm):
-    result = '\\renewcommand{\\ob}[1]{\\frac{#1}{%d}}\n\n' \
+    result = '\\renewcommand{\\ob}[1]{\\frac{#1}{%d}}\n\medskip\n' \
              '\\[\n \\begin{array}{%s} \n' % (univ_lcm, 'c' * (len(frac_strs) * 2 - 1))
     if len(share_strs) < len(frac_strs) - 1:
         for share in share_strs:
@@ -26,14 +26,14 @@ def data_to_latex(share_strs, frac_strs, univ_lcm):
     for frac in frac_strs:
         result += '%s & & ' % frac
     result = result[:-5] + ' \\cr\n'
-    result += '\\end{array} \n\\]'
+    result += '\\end{array} \n\\]\n\medskip'
     return result
 
 
 def split_to_latex(share_strs, frac_strs, univ_lcm, share_size, low):
     result = '\n\n\\bigskip\n\\bigskip\n\\bigskip\n\n' \
              'The following picture is just of the %d shares:\n\n' % share_size
-    result += '\\renewcommand{\\ob}[1]{\\frac{#1}{%d}}\n\n' \
+    result += '\\renewcommand{\\ob}[1]{\\frac{#1}{%d}}\n\medskip\n' \
               '\[\n\\begin{array}{%s}\n' % (univ_lcm, 'c' * (len(frac_strs) * 2 - 1))
     ind = [0, 1, 1, 2, 2, 3]
     if low:
@@ -51,7 +51,7 @@ def split_to_latex(share_strs, frac_strs, univ_lcm, share_size, low):
     for frac in frac_strs:
         result += '%s & & ' % frac
     result = result[:-5] + ' \\cr\n'
-    result += '\\end{array} \n\\]'
+    result += '\\end{array} \n\\]\n\medskip'
     result += '\n\nWe define the following intervals: \n\\begin{enumerate}\n' + \
               '\item\n$I_1=(%s,%s)$\n' % (frac_strs[ind[0]], frac_strs[ind[1]]) + \
               '\item\n$I_2=(%s,%s)$\n' % (frac_strs[ind[2]], frac_strs[ind[3]]) + \
@@ -73,27 +73,27 @@ def make_diagram(m, s, ans):
     sv1_str = '\hbox{%d %d-shs}' % ((V - 1) * sv1, V - 1)
 
     if g > h:
-        v_shares = '\\renewcommand{\\ob}[1]{\\frac{#1}{%d}}\n\n\\[\n \\begin{array}{ccccc}\n' % univ_lcm + \
+        v_shares = '\\renewcommand{\\ob}[1]{\\frac{#1}{%d}}\n\medskip\n\\[\n \\begin{array}{ccccc}\n' % univ_lcm + \
                    '( & %s & )( & \hbox{0 %d-shs} & )\\cr\n' % (sv_str, V) + \
                    '%s & & %s & & %s\\cr\n' % (frac_strs[0], frac_strs[1], frac_strs[3]) + \
-                   '\\end{array} \n\\]'
-        v1_shares = '\\renewcommand{\\ob}[1]{\\frac{#1}{%d}}\n\n\\[\n \\begin{array}{ccccc}\n' % univ_lcm + \
+                   '\\end{array} \n\\]\n\medskip'
+        v1_shares = '\\renewcommand{\\ob}[1]{\\frac{#1}{%d}}\n\medskip\n\\[\n \\begin{array}{ccccc}\n' % univ_lcm + \
                     '( & \hbox{0 %d-shs} & )( & %s & )\\cr\n' % (V - 1, sv1_str) + \
                     '%s & & %s & & %s\\cr\n' % (frac_strs[0], frac_strs[2], frac_strs[3]) + \
-                    '\\end{array} \n\\]'
+                    '\\end{array} \n\\]\n\medskip'
         return v_shares + '\n\n' + v1_shares
 
     if h > 1 - ans:
-        return '\\renewcommand{\\ob}[1]{\\frac{#1}{%d}}\n\n\\[\n \\begin{array}{ccccc}\n' % univ_lcm + \
+        return '\\renewcommand{\\ob}[1]{\\frac{#1}{%d}}\n\medskip\n\\[\n \\begin{array}{ccccc}\n' % univ_lcm + \
                '( & %s & )[ & 0 & ]\\cr\n' % sv_str + \
                '%s & & %s & & %s\\cr\n' % (frac_strs[0], frac_strs[1], frac_strs[3]) + \
-               '\\end{array} \n\\]'
+               '\\end{array} \n\\]\n\medskip'
 
     if g < ans:
-        return '\\renewcommand{\\ob}[1]{\\frac{#1}{%d}}\n\n\\[\n \\begin{array}{ccccc}\n' % univ_lcm + \
+        return '\\renewcommand{\\ob}[1]{\\frac{#1}{%d}}\n\medskip\n\\[\n \\begin{array}{ccccc}\n' % univ_lcm + \
                '[ & 0 & ]( & %s & )\\cr\n' % sv1_str + \
                '%s & & %s & & %s\\cr\n' % (frac_strs[0], frac_strs[2], frac_strs[3]) + \
-               '\\end{array} \n\\]'
+               '\\end{array} \n\\]\n\medskip'
 
     result = data_to_latex([sv_str, sv1_str], frac_strs, univ_lcm) + '\n\n'
 
