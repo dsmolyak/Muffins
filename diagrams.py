@@ -127,7 +127,7 @@ def make_diagram(m, s, ans):
             frac_strs, univ_lcm = make_common_frac([ans, 1 - h, Fraction(1, 2), g])
         else:
             frac_strs, univ_lcm = make_common_frac([ans, 1 - h, 1 - g, Fraction(1, 2), g])
-        result += split_to_latex([sv_low_str, split_str, split_str], frac_strs, univ_lcm, V - 1, True)
+        result += split_to_latex([sv_low_str, split_str, split_str], frac_strs, univ_lcm, V, True)
 
     elif h < Fraction(1, 2):
 
