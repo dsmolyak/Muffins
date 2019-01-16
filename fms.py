@@ -164,6 +164,25 @@ def find_dkp(m, s):
     return (dkp_1, 'DKp-ONE') if dkp_1 < dkp_2 else (dkp_2, 'DKp-TWO')
 
 
+def vhalf(m, s, alpha):
+    if alpha < Fraction(1, 3):
+        return False
+    V, sv, sv1 = calcSv(m, s)
+    frac_ms = Fraction(m, s)
+    if frac_ms * Fraction(1, V + 1) > alpha or 1 - frac_ms * Fraction(1, V - 2) > alpha:
+        return False
+    x = Fraction(m, s) - alpha * (V - 1)
+    x = 1 - alpha if x > 1 - alpha else x
+    y = Fraction(m, s) - (1 - alpha) * (V - 2)
+    y = alpha if y < alpha else y
+
+    if x <= Fraction(1, 2) and V * sv > m:
+        return True
+    if y >= Fraction(1, 2) and (V - 1) * sv1 > m:
+        return True
+    return False
+
+
 def half(m, s):
     V, sv, sv1 = calcSv(m, s)
     frac_ms = Fraction(m, s)
@@ -171,29 +190,12 @@ def half(m, s):
         print('equal shares!')
         return 1
 
-    # Verify 1/3
-    if V == 3:
-        alpha = Fraction(1, 3)
-        beta = frac_ms - (1 - alpha) * (V - 2)
-        gamma = frac_ms - alpha * (V - 1)
-        if beta >= gamma:
-            if gamma >= Fraction(1, 2) and V * sv < (V - 1) * sv1:
-                return Fraction(1, 3)
-            elif beta <= Fraction(1, 2) and V * sv > (V - 1) * sv1:
-                return Fraction(1, 3)
-
-    alpha_1 = 1 - Fraction(frac_ms - Fraction(1, 2), V - 2)
-    beta_1 = frac_ms - (1 - alpha_1) * (V - 2)
-    gamma_1 = frac_ms - alpha_1 * (V - 1)
-    if beta_1 < gamma_1:
-        alpha_1 = 1
-    alpha_2 = Fraction(frac_ms - Fraction(1, 2), V - 1)
-    beta_2 = frac_ms - (1 - alpha_2) * (V - 2)
-    gamma_2 = frac_ms - alpha_2 * (V - 1)
-    if beta_2 < gamma_2:
-        alpha_2 = 1
-
-    return min(alpha_1, alpha_2)
+    if (V-1) * sv1 > V * sv:
+        alpha = 1 - Fraction(frac_ms - Fraction(1, 2), V - 2)  # sets y to 1/2
+    else:
+        alpha = Fraction(frac_ms - Fraction(1, 2), V - 1)  # sets x to 1/2
+    alpha = alpha if alpha > Fraction(1, 3) else Fraction(1, 3)
+    return alpha if vhalf(m, s, alpha) else 1
 
 
 def f(m, s):
@@ -203,6 +205,7 @@ def f(m, s):
     h = half(m, s)
     bm = BuddyMatch.f(m, s) if calcSv(m, s)[0] == 3 else 1
     results = [fc, h, dk, dkp, bm]
+    print(results)
     ans = min(results)
     ans_type = ''
     result_types = ['Floor-Ceiling', 'HALF', dk_type, dkp_type, 'BM']
@@ -216,21 +219,3 @@ def f(m, s):
 if __name__ == '__main__':
     print(f(23, 13))
 
-    # if len(sys.argv) == 3:
-    #     m = int(sys.argv[1])
-    #     s = int(sys.argv[2])
-    #     ans, ans_type = f(m, s)
-    #     print('For m = %d and for s = %d, f(m,s) has an upper bound of %s.' % (m, s, ans))
-    #     print('This is proven by the %s theorem.' % ans_type)
-    #
-    # if len(sys.argv) == 5:
-    #     m_l = int(sys.argv[1])
-    #     m_u = int(sys.argv[2])
-    #     s_l = int(sys.argv[3])
-    #     s_u = int(sys.argv[4])
-    #
-    #     for s in range(s_l, s_u + 1):
-    #         for m in range(m_l if m_l > s else s + 1, m_u + 1):
-    #             ans, ans_type = f(m, s)
-    #             print('For m = %d and for s = %d, f(m,s) has an upper bound of %s.' % (m, s, ans))
-    #             print('This is proven by the %s theorem.' % ans_type)
