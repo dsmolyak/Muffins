@@ -187,9 +187,7 @@ def half(m, s):
     V, sv, sv1 = calcSv(m, s)
     frac_ms = Fraction(m, s)
     if (V-1) * sv1 == V * sv:
-        print('equal shares!')
         return 1
-
     if (V-1) * sv1 > V * sv:
         alpha = 1 - Fraction(frac_ms - Fraction(1, 2), V - 2)  # sets y to 1/2
     else:
@@ -205,7 +203,6 @@ def f(m, s):
     h = half(m, s)
     bm = BuddyMatch.f(m, s) if calcSv(m, s)[0] == 3 else 1
     results = [fc, h, dk, dkp, bm]
-    print(results)
     ans = min(results)
     ans_type = ''
     result_types = ['Floor-Ceiling', 'HALF', dk_type, dkp_type, 'BM']

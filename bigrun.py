@@ -5,6 +5,7 @@ import procedures
 import math
 from fractions import Fraction
 import sys
+from gaps import MuffinsAuto
 
 
 def factor(n):
@@ -32,6 +33,29 @@ def relatively_prime(m, s):
             if item in l2:
                 return False
     return True
+
+
+def verify_gaps(m, s, numer, denom):
+    with open('output.txt', 'w') as file:
+        sys.stdout = file
+        muffin = MuffinsAuto(m, s, numer, denom)
+        muffin.main()
+
+    with open('output.txt', 'r') as file:
+        sys.stdout = sys.__stdout__
+        data_str = file.read().replace('\n', '')
+        if 'fail' in data_str:
+            return 'Open'
+        elif data_str[-5:] == 'EERIK':
+            return 'MID'
+        elif data_str[-4:] == 'ERIK':
+            return 'GAP'
+        elif data_str[-5:] == 'BILL2':
+            return 'GAPBM'
+        elif data_str[-5:] == 'BILL1':
+            return 'HALF'
+        else:
+            return 'Open'
 
 
 def write_file(m_l=3, m_u=70, s_l=3, s_u=60):
@@ -73,11 +97,16 @@ def write_file(m_l=3, m_u=70, s_l=3, s_u=60):
                     if procedures.getProcedures(m, s, ub):
                         open_prob = ''
                     else:
-                        open_prob = 'Open'
                         lb = Fraction(ub.numerator - 1, ub.denominator)
                         lb = lb if lb > Fraction(1, 3) else Fraction(1, 3)
-                        lb = closer_bounds(m, s, lb, ub)
-                        lb_cd, ub_cd = convert_den(lb, ub)
+                        lb, lb_type = closer_bounds(m, s, lb, ub)
+                        if lb_type == 'Open':
+                            open_prob = 'Open'
+                            lb_cd, ub_cd = convert_den(lb, ub)
+                        else:
+                            ans_type = lb_type
+                            ub = lb
+                            lb = ''
                 except procedures.TimeoutError:
                     open_prob = 'Timeout'
                 except KeyError:
@@ -89,7 +118,7 @@ def write_file(m_l=3, m_u=70, s_l=3, s_u=60):
                 if len(open_prob) > 0:
                     table_open.add_row(row)
                     table_open.add_hline()
-                if ans_type != 'Floor-Ceiling':
+                if len(open_prob) > 0 or ans_type != 'Floor-Ceiling':
                     table_non_FC.add_row(row)
                     table_non_FC.add_hline()
 
@@ -125,46 +154,6 @@ def convert_den(lb, ub):
     return res_lb, res_ub
 
 
-def open_probs():
-    doc_open = Document('Open')
-    table_open = LongTable('|c|c|c|c|c|c|c|')
-    table_open.add_hline()
-    table_open.add_row((bold('M'), bold('S'), bold('LB'), bold('UB'),
-                        bold('LB-CD'), bold('UB-CD'), bold('Method')))
-    table_open.add_hline()
-    table_open.add_hline()
-
-    tuples = [(29, 17), (41, 19), (59, 22), (51, 23), (46, 27), (47, 29), (53, 31), (55, 34)]
-    for tup in tuples:
-        m = tup[0]
-        s = tup[1]
-        if tup == (41, 19):
-            ub, ans_type = Fraction(983, 2280), 'ERIK'
-        else:
-            ub, ans_type = f(m, s)
-        try:
-            if procedures.getProcedures(m, s, ub):
-                print('solved')
-            else:
-                lb = Fraction(ub.numerator - 1, ub.denominator)
-                lb = lb if lb > Fraction(1, 3) else Fraction(1, 3)
-                if tup == (41, 19):
-                    lb = Fraction(980, 2280)
-                lb = closer_bounds(m, s, lb, ub)
-        except procedures.TimeoutError:
-            print('Timeout')
-        except KeyError:
-            print('Timeout')
-        lb_cd, ub_cd = convert_den(lb, ub)
-        row = (m, s, str(lb), str(ub), lb_cd, ub_cd, ans_type)
-        print(row)
-        table_open.add_row(row)
-        table_open.add_hline()
-
-    doc_open.append(table_open)
-    doc_open.generate_pdf('latex/BIGRUN_opens', clean_tex=False)
-
-
 def closer_bounds(m, s, lb, ub):
     for den in range(3, min(550, s*s)):
         for num in range(int(den / 3 - 1), int(den / 2 + 1)):
@@ -176,11 +165,14 @@ def closer_bounds(m, s, lb, ub):
                         res_lb, res_ub = convert_den(curr_frac, ub)
                         print(res_lb, res_ub)
                         lb = curr_frac
+                        verify_result = verify_gaps(m, s, lb.numerator, lb.denominator)
+                        if verify_result != 'Open':
+                            return lb, verify_result
                 except procedures.TimeoutError:
                     print("no")
                 except KeyError:
                     print("no")
-    return lb
+    return lb, 'Open'
 
 
 if __name__ == '__main__':
