@@ -214,7 +214,7 @@ def procedureToString(procedure):
     return '\n'.join(lines)
 
 
-@timeout(1000, os.strerror(errno.ETIMEDOUT))
+@timeout(1800, os.strerror(errno.ETIMEDOUT))
 def getProcedures(m, s, Q=None, print_proc=False):
     pieces, d = None, None
     if Q == None:
