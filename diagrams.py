@@ -95,7 +95,7 @@ def make_diagram(m, s, ans):
                '%s & & %s & & %s\\cr\n' % (frac_strs[0], frac_strs[2], frac_strs[3]) + \
                '\\end{array} \n\\]\n\medskip'
 
-    result = data_to_latex([sv_str, sv1_str], frac_strs, univ_lcm) + '\n\n'
+    result = [data_to_latex([sv_str, sv1_str], frac_strs, univ_lcm) + '\n\n']
 
     if g <= Fraction(1, 2) <= h:
         g = 1 - h if g > 1 - h else g
@@ -106,10 +106,10 @@ def make_diagram(m, s, ans):
 
         if g == h:
             frac_strs, univ_lcm = make_common_frac([ans, h, 1 - ans])
-            result += data_to_latex([sv_str, sv1_str], frac_strs, univ_lcm)
+            result.append(data_to_latex([sv_str, sv1_str], frac_strs, univ_lcm))
         else:
             frac_strs, univ_lcm = make_common_frac([ans, g, h, 1 - ans])
-            result += data_to_latex([sv_str, sv1_str], frac_strs, univ_lcm)
+            result.append(data_to_latex([sv_str, sv1_str], frac_strs, univ_lcm))
 
     if g > Fraction(1, 2):
 
@@ -120,14 +120,14 @@ def make_diagram(m, s, ans):
             frac_strs, univ_lcm = make_common_frac([ans, 1 - g, g, 1 - ans])
         else:
             frac_strs, univ_lcm = make_common_frac([ans, 1 - h, 1 - g, g, h, 1 - ans])
-        result += data_to_latex([sv_low_str, sv_high_str, sv1_str], frac_strs, univ_lcm)
+        result.append(data_to_latex([sv_low_str, sv_high_str, sv1_str], frac_strs, univ_lcm))
 
         split_str = '\hbox{%d %d-shs}' % ((V * sv - (V - 1) * sv1) / 2, V)
         if g == h:
             frac_strs, univ_lcm = make_common_frac([ans, 1 - h, Fraction(1, 2), g])
         else:
             frac_strs, univ_lcm = make_common_frac([ans, 1 - h, 1 - g, Fraction(1, 2), g])
-        result += split_to_latex([sv_low_str, split_str, split_str], frac_strs, univ_lcm, V, True)
+        result.append(split_to_latex([sv_low_str, split_str, split_str], frac_strs, univ_lcm, V, True))
 
     elif h < Fraction(1, 2):
 
@@ -138,14 +138,14 @@ def make_diagram(m, s, ans):
             frac_strs, univ_lcm = make_common_frac([ans, g, 1 - g, 1 - ans])
         else:
             frac_strs, univ_lcm = make_common_frac([ans, g, h, 1 - h, 1 - g, 1 - ans])
-        result += data_to_latex([sv_str, sv1_low_str, sv1_high_str], frac_strs, univ_lcm)
+        result.append(data_to_latex([sv_str, sv1_low_str, sv1_high_str], frac_strs, univ_lcm))
 
         split_str = '\hbox{%d %d-shs}' % (((V - 1) * sv1 - V * sv) / 2, V - 1)
         if g == h:
             frac_strs, univ_lcm = make_common_frac([h, Fraction(1, 2), 1 - g, 1 - ans])
         else:
             frac_strs, univ_lcm = make_common_frac([h, Fraction(1, 2), 1 - h, 1 - g, 1 - ans])
-        result += split_to_latex([split_str, split_str, sv1_high_str], frac_strs, univ_lcm, V - 1, False)
+        result.append(split_to_latex([split_str, split_str, sv1_high_str], frac_strs, univ_lcm, V - 1, False))
 
     return result
 
@@ -156,6 +156,6 @@ if __name__ == '__main__':
     try:
         ans = fms.f(m, s)[0] if len(sys.argv) == 3 \
             else Fraction(int(sys.argv[3].split('/')[0]), int(sys.argv[3].split('/')[1]))
-        print(make_diagram(m, s, ans))
+        [print(diag) for diag in make_diagram(m, s, ans)]
     except ValueError:
         print('Incorrect arguments.')
