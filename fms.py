@@ -200,14 +200,17 @@ def half(m, s):
 
 def poss_students(W, intervals, frac_ms, students, poss_studs):
     if len(students) == W:
-        small_total = 0
-        big_total = 0
-        for share in range(0, W):
-            small_total += intervals[int(students[share]) - 1][1]
-            big_total += intervals[int(students[share]) - 1][0]
-        too_small = small_total <= frac_ms
-        too_big = big_total >= frac_ms
-        if not too_small and not too_big:
+        if intervals:
+            small_total = 0
+            big_total = 0
+            for share in range(0, W):
+                small_total += intervals[int(students[share]) - 1][1]
+                big_total += intervals[int(students[share]) - 1][0]
+            too_small = small_total <= frac_ms
+            too_big = big_total >= frac_ms
+            if not too_small and not too_big:
+                poss_studs.append(students)
+        else:
             poss_studs.append(students)
         return
     if not students or students[-1] == '1':
@@ -240,9 +243,9 @@ def vmid(m, s, alpha):
                      (Fraction(1, 2), 1 - y),
                      (1 - x, 1 - alpha)]
         poss_studs = []
+        poss_students(V - 1, intervals, frac_ms, '', poss_studs)
         if not poss_studs:
             return True
-        poss_students(V - 1, intervals, frac_ms, '', poss_studs)
         x_vars = [LpVariable('x' + str(i), 0, sv1, LpContinuous) for i in range(len(poss_studs))]
 
         vars_1 = create_polynomial(x_vars, poss_studs, '1')
@@ -262,9 +265,9 @@ def vmid(m, s, alpha):
                      (1 - x, Fraction(1, 2)),
                      (Fraction(1, 2), x)]
         poss_studs = []
+        poss_students(V, intervals, frac_ms, '', poss_studs)
         if not poss_studs:
             return True
-        poss_students(V, intervals, frac_ms, '', poss_studs)
         x_vars = [LpVariable('x' + str(i), 0, sv, LpInteger) for i in range(len(poss_studs))]
 
         vars_1 = create_polynomial(x_vars, poss_studs, '1')
@@ -280,20 +283,69 @@ def vmid(m, s, alpha):
         return status != 1
 
 
+def mid(m, s):
+    V, sv, sv1 = calcSv(m, s)
+    frac_ms = Fraction(m, s)
+    alphas = {1}
+    all_studs = []
+    W = V - 1 if sv1 * (V - 1) > sv * V else V
+    poss_students(W, [], frac_ms, '', all_studs)
+    for stud in all_studs:
+        count_1 = stud.count('1')
+        count_2 = stud.count('2')
+        count_3 = stud.count('3')
+        if W == V - 1:
+            try:
+                alphas.add(1 - ((frac_ms - count_1 * Fraction(1, 2) - count_2 + count_2 * frac_ms) /
+                           (count_2 * (V - 2) + count_3)))
+            except ZeroDivisionError:
+                pass
+            try:
+                alphas.add(
+                    (frac_ms * (1 - count_1 + count_3) - count_2 * Fraction(1, 2) + count_1 * (V - 2) - count_3) /
+                    (count_1 * (V - 2) + count_3 * (V - 1)))
+            except ZeroDivisionError:
+                pass
+        else:
+            try:
+                alphas.add(
+                    (frac_ms * (1 + count_1 - count_3) - count_2 * Fraction(1, 2) - count_1 - count_1 * (V - 2)) /
+                    (-1 * count_1 * (V - 2) - count_3 * (V - 1)))
+            except ZeroDivisionError:
+                pass
+            try:
+                alphas.add((frac_ms - count_3 * Fraction(1, 2) - count_2 + count_2 * frac_ms) /
+                           (count_1 + count_2 * (V - 1)))
+            except ZeroDivisionError:
+                pass
+    v_alphas = [alpha for alpha in alphas if vmid(m, s, alpha)]
+    return min(v_alphas)
+
+
 def f(m, s):
     fc = floor_ceiling(m, s)
     dk, dk_type = find_dk(m, s)
     dkp, dkp_type = find_dkp(m, s)
     h = half(m, s)
+    mi = mid(m, s)
     bm = BuddyMatch.f(m, s) if calcSv(m, s)[0] == 3 else 1
-    results = [fc, h, dk, dkp, bm]
+    results = [fc, h, dk, dkp, mi, bm]
     ans = min(results)
-    ans_type = ''
-    result_types = ['FC', 'HALF', dk_type, dkp_type, 'BM']
+    result_types = ['FC', 'HALF', dk_type, dkp_type, 'MID', 'BM']
     ans_type = result_types[results.index(ans)]
     return ans, ans_type
 
 
 if __name__ == '__main__':
-    print(f(33, 20))
-    print(vmid(33, 20, Fraction(49, 120)))
+    # data = open('blah1.txt', 'r').read().split('\n')
+    # for line in data:
+    #     m = int(line.split('-')[0])
+    #     s = int(line.split('-')[1])
+    #     print('f(%d, %d) = %s' % (m, s, mid(m, s)))
+
+    m = 69
+    s = 25
+    print(f(m, s))
+    # print(vmid(m, s, Fraction(49, 123)))
+    print(mid(m, s))
+

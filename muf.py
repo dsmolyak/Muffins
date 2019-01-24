@@ -26,7 +26,7 @@ if __name__ == '__main__':
             print('\nAttempting the following lower bounds:')
             lb = Fraction(ub.numerator - 1, ub.denominator)
             lb = lb if lb > Fraction(1, 3) else Fraction(1, 3)
-            lb = closer_bounds(m, s, lb, ub)
+            lb = closer_bounds(m, s, lb, ub)[0]
 
             getProcedures(m, s, lb, True)
             print('\nFor m = %d and s = %d, f(m,s) has lower bound %s, as there exists a '
