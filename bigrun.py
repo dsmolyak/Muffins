@@ -6,6 +6,7 @@ import math
 from fractions import Fraction
 import sys
 from gaps import MuffinsAuto
+import functools
 
 
 def factor(n):
@@ -14,7 +15,6 @@ def factor(n):
     res = []
     high = int(math.ceil(math.sqrt(n)))
     for i in range(2, high + 1):
-
         if n % i == 0:
             res.append(i)
             div = n / i
@@ -88,7 +88,7 @@ def write_file(m_l=3, m_u=70, s_l=3, s_u=60):
         m_start = s + 1 if s + 1 > m_l else m_l
         for m in range(m_start, m_u + 1):
             if relatively_prime(m, s):
-                ub, ans_type = f(m, s)
+                ub, ans_types = f(m, s)
                 open_prob = ''
                 lb = ''
                 lb_cd = ''
@@ -104,21 +104,22 @@ def write_file(m_l=3, m_u=70, s_l=3, s_u=60):
                             open_prob = 'Open'
                             lb_cd, ub_cd = convert_den(lb, ub)
                         else:
-                            ans_type = lb_type
+                            ans_types = [lb_type]
                             ub = lb
                             lb = ''
                 except procedures.TimeoutError:
                     open_prob = 'Timeout'
                 except KeyError:
                     open_prob = 'Timeout'
-                row = (m, s, ans_type, open_prob, str(lb), str(ub), lb_cd, ub_cd)
+                ans_types_str = functools.reduce(lambda a, b: a + ',' + str(b), ans_types)
+                row = (m, s, ans_types_str, open_prob, str(lb), str(ub), lb_cd, ub_cd)
                 table.add_row(row)
                 print(row)
                 table.add_hline()
                 if len(open_prob) > 0:
                     table_open.add_row(row)
                     table_open.add_hline()
-                if len(open_prob) > 0 or ans_type != 'Floor-Ceiling':
+                if len(open_prob) > 0 or ans_types != 'Floor-Ceiling':
                     table_non_FC.add_row(row)
                     table_non_FC.add_hline()
 

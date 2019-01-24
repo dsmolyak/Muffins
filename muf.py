@@ -3,37 +3,39 @@ from fms import f
 from fms import calcSv
 from procedures import getProcedures
 from bigrun import closer_bounds
-from bigrun import convert_den
+import functools
 from fractions import Fraction
 from diagrams import make_diagram
 
 
-def gen_proof(m, s, ans, ans_type):
+def gen_proof(m, s, ans, ans_types):
     V, sv, sv1 = calcSv(m, s)
-    print('This is upper bound is proven by the %s theorem.' % ub_type)
-    ans_type = 'DK' if 'DK' in ans_type else ans_type
-    if ans_type != 'FC':
-        print('We first know s_%d = %d and s_%d = %d.' % (V, sv, V - 1, sv1))
-        diagrams = ['HALF', 'DK', 'MID']
-        if ans_type in diagrams:
-            print('Then, the following diagram illustrates where these shares occur:')
-            print(make_diagram(m, s, ans)[diagrams.index(ans_type)])
-        else:
-            output = open('output.txt', 'r').read()
-            print(output)
-
+    for ans_type in ans_types:
+        print('This upper bound is proven by the %s theorem.' % ans_type)
+        ans_type = 'DK' if 'DK' in ans_type else ans_type
+        if ans_type != 'FC':
+            diagrams = ['HALF', 'DK', 'MID']
+            if ans_type in diagrams:
+                print('We first know s_%d = %d and s_%d = %d.' % (V, sv, V - 1, sv1))
+                print('Then, the following diagram illustrates where these shares occur:')
+                print(make_diagram(m, s, ans)[diagrams.index(ans_type)])
+                print('\n')
+            if 'BM' in ans_type:
+                V, _, _ = calcSv(m, s)
+                d = m - s
+                k = int(s / (3 * d)) if s % (3 * d) != 0 else int(s / (3 * d)) - 1
+                a = s - 3 * d * k
+                print('We know that a = %d, and d = %d.' % (a, d))
 
 
 if __name__ == '__main__':
     if len(sys.argv) == 3:
         m = int(sys.argv[1])
         s = int(sys.argv[2])
-        ub, ub_type = f(m, s)
+        ub, ub_types = f(m, s)
 
         if getProcedures(m, s, ub):
             getProcedures(m, s, ub, True)
-
-            gen_proof(m, s, ub, ub_type)
 
             print('\nFor m = %d and s = %d, f(m,s) has lower bound %s, as there exists a '
                   'procedure for cutting m muffins for s students such that the smallest '
@@ -41,6 +43,7 @@ if __name__ == '__main__':
             print('That procedure is shown above. ^\n\n')
 
             print('For m = %d and for s = %d, f(m,s) has an upper bound of %s.' % (m, s, ub))
+            gen_proof(m, s, ub, ub_types)
 
         else:
             print('\nAttempting the following lower bounds:')
@@ -54,6 +57,10 @@ if __name__ == '__main__':
                   'piece is at least %s.' % (m, s, lb, lb))
             print('That procedure is shown above. ^')
 
+            if lb_type != 'Open':
+                output = open('output.txt', 'r').read()
+                print(output)
+
     if len(sys.argv) == 5:
         m_l = int(sys.argv[1])
         m_u = int(sys.argv[2])
@@ -62,9 +69,10 @@ if __name__ == '__main__':
 
         for s in range(s_l, s_u + 1):
             for m in range(m_l if m_l > s else s + 1, m_u + 1):
-                ans, ans_type = f(m, s)
+                ans, ans_types = f(m, s)
+                ans_types_str = functools.reduce(lambda a, b: a + ',' + str(b), ans_types)
                 print('For m = %d and for s = %d, f(m,s) has an upper bound of %s.' % (m, s, ans))
-                print('This is proven by the %s theorem.' % ans_type)
+                print('This is proven by the %s theorem.' % ans_types_str)
 
 
 

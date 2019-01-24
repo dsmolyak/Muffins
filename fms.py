@@ -365,17 +365,16 @@ def f(m, s):
     dkp, dkp_type = find_dkp(m, s)
     h = half(m, s)
     mi = mid(m, s)
-    fb = fbm(m, s)
-    cb = cbm(m, s)
-    bm = BuddyMatch.f(m, s) if calcSv(m, s)[0] == 3 else 1
-    results = [fc, h, dk, dkp, mi, fb, bm]
+    fb = fbm(m, s) if calcSv(m, s)[0] == 3 else 1
+    cb = cbm(m, s) if calcSv(m, s)[0] == 3 else 1
+    results = [fc, h, dk, dkp, mi, fb, cb]
     ans = min(results)
-    result_types = ['FC', 'HALF', dk_type, dkp_type, 'MID', 'FBM', 'CBM', 'BM']
-    ans_type = result_types[results.index(ans)]
-    return ans, ans_type
+    result_types = ['FC', 'HALF', dk_type, dkp_type, 'MID', 'FBM', 'CBM']
+    ans_types = [result_types[i] for i in range(len(results)) if results[i] == ans]
+    return ans, ans_types
 
 
 if __name__ == '__main__':
-    m = 69
-    s = 25
+    m = 24
+    s = 11
     print(f(m, s))

@@ -19,6 +19,6 @@ with open(filename, 'w') as csv_file:
         for m in range(s + 1, max_range):
             if m % 100 == 0:
                 print(m, s)
-            ans, ans_type = f(m, s)
-            exception_type = 'None' if ans_type == 'FC' and ans != Fraction(1, 3) else ans_type
+            ans, ans_types = f(m, s)
+            exception_type = 'None' if 'FC' in ans_types and ans != Fraction(1, 3) else ans_types
             csv_writer.writerow([m, s, ans, exception_type])
