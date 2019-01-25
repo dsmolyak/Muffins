@@ -93,7 +93,7 @@ def find_dk(m, s):
     V, sv, sv1 = calcSv(m, s)
     dk_1 = find_dk_one(m, s, V, sv, sv1)
     dk_2 = find_dk_two(m, s, V, sv, sv1)
-    return (dk_1, 'DK-ONE') if dk_1 < dk_2 else (dk_2, 'DK-TWO')
+    return (dk_1, 'DK-1') if dk_1 < dk_2 else (dk_2, 'DK-2')
 
 
 def find_dkp_one(m, s, V, sv, sv1):
@@ -159,7 +159,7 @@ def find_dkp(m, s):
     V, sv, sv1 = calcSv(m, s)
     dkp_1 = find_dkp_one(m, s, V, sv, sv1)
     dkp_2 = find_dkp_two(m, s, V, sv, sv1)
-    return (dkp_1, 'DKp-ONE') if dkp_1 < dkp_2 else (dkp_2, 'DKp-TWO')
+    return (dkp_1, 'DKp-1') if dkp_1 < dkp_2 else (dkp_2, 'DKp-2')
 
 
 def vhalf(m, s, alpha):
@@ -293,7 +293,7 @@ def mid(m, s):
         if W == V - 1:
             try:
                 alphas.add(1 - ((frac_ms - count_1 * Fraction(1, 2) - count_2 + count_2 * frac_ms) /
-                           (count_2 * (V - 2) + count_3)))
+                                (count_2 * (V - 2) + count_3)))
             except ZeroDivisionError:
                 pass
             try:
@@ -321,17 +321,18 @@ def mid(m, s):
 def ebm(m, s):
     V, sv, sv1 = calcSv(m, s)
     if V >= 4:
-        return 1
+        return 1, ''
     d = m - s
     k = int(s / (3 * d)) if s % (3 * d) != 0 else int(s / (3 * d)) - 1
     a = s - 3 * d * k
     if a == 2 * d:
-        return 1
+        return 1, ''
     if a > 2 * d:
-        return Fraction(1, 3)
+        return Fraction(1, 3), ['EBM-1']
     else:
-        X = min(Fraction(a, 2), Fraction(a + d, 4))
-        return Fraction(d * k + X, 3 * d * k + a)
+        xs = [Fraction(a, 2), Fraction(a + d, 4)]
+        X = min(xs)
+        return Fraction(d * k + X, 3 * d * k + a), ['HBM-%d' % (i + 1) for i in range(len(xs)) if xs[i] == X]
 
 
 def cond(X, a, d):
@@ -348,7 +349,7 @@ def hbm(m, s):
     bad = 2 * d * k + a
     y1 = max(Fraction(a + 2 * d, 6), Fraction(2 * a - d, 3))
     x1 = y1 if cond(y1, a, d) else bad
-    y2 = max( Fraction(a + d, 5), Fraction(2 * a - d, 3), Fraction(d, 2))
+    y2 = max(Fraction(a + d, 5), Fraction(2 * a - d, 3), Fraction(d, 2))
     x2 = y2 if cond(y2, a, d) and a != d else bad
     y3 = max(Fraction(3 * a - 2 * d, 4), Fraction(a + 2 * d, 6))
     x3 = y3 if cond(y3, a, d) and 5 * a != 7 * d else bad
@@ -360,25 +361,36 @@ def hbm(m, s):
     x6 = y6 if cond(y6, a, d) and (a <= d - 1 or 7 * d <= 5 * a - 1) else bad
     y7 = max(Fraction(2 * a - d, 3), Fraction(a + d, 5))
     x7 = y7 if cond(y7, a, d) and a != d else bad
-    return Fraction(d * k + min(x1, x2, x3, x4, x5, x6, x7), 3 * d * k + a)
+    xs = [x1, x2, x3, x4, x5, x6, x7]
+    ans = min(xs)
+    return Fraction(d * k + ans, 3 * d * k + a), ['HBM-%d' % i for i in range(len(xs)) if xs[i] == ans]
 
 
-def f(m, s):
+def f(m, s, bigrun=True):
     fc = floor_ceiling(m, s)
     dk, dk_type = find_dk(m, s)
     dkp, dkp_type = find_dkp(m, s)
     h = half(m, s)
     mi = mid(m, s)
-    eb = ebm(m, s) if calcSv(m, s)[0] == 3 else 1
-    hb = hbm(m, s) if calcSv(m, s)[0] == 3 else 1
-    results = [fc, h, dk, dkp, mi, eb, hb]
+    ebm_ans, ebm_types = 1, ''
+    hbm_ans, hbm_types = 1, ''
+    if calcSv(m, s)[0] == 3:
+        ebm_ans, ebm_types = ebm(m, s)
+        hbm_ans, hbm_types = hbm(m, s)
+        if bigrun:
+            ebm_types = ebm_types[0] if len(ebm_types) > 0 else ''
+            hbm_types = hbm_types[0] if len(hbm_types) > 0 else ''
+        else:
+            ebm_types = functools.reduce(lambda a, b: a + ',' + str(b), ebm_types) if len(ebm_types) > 0 else ''
+            hbm_types = functools.reduce(lambda a, b: a + ',' + str(b), hbm_types) if len(hbm_types) > 0 else ''
+    results = [fc, h, dk, dkp, mi, ebm_ans, hbm_ans]
     ans = min(results)
-    result_types = ['FC', 'HALF', dk_type, dkp_type, 'MID', 'EBM', 'HBM']
+    result_types = ['FC', 'HALF', dk_type, dkp_type, 'MID', ebm_types, hbm_types]
     ans_types = [result_types[i] for i in range(len(results)) if results[i] == ans]
     return ans, ans_types
 
 
 if __name__ == '__main__':
-    m = 24
-    s = 11
+    m = 4
+    s = 3
     print(f(m, s))

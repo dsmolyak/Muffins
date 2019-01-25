@@ -1,6 +1,6 @@
 from pylatex import Document, LongTable
 from pylatex.utils import bold
-from fms import f
+from fms import f, calcSv
 import procedures
 import math
 from fractions import Fraction
@@ -62,6 +62,7 @@ def write_file(m_l=3, m_u=70, s_l=3, s_u=60):
     doc = Document('MyDocc')
     doc_open = Document('Open')
     doc_non_FC = Document('Non_FC')
+    doc_V3 = Document('V3')
 
     table = LongTable('|c|c|c|c|c|c|c|c|')
     table.add_hline()
@@ -84,6 +85,13 @@ def write_file(m_l=3, m_u=70, s_l=3, s_u=60):
     table_non_FC.add_hline()
     table_non_FC.add_hline()
 
+    table_V3 = LongTable('|c|c|c|c|c|c|c|c|')
+    table_V3.add_hline()
+    table_V3.add_row((bold('M'), bold('S'), bold('Method'), bold('Open?'),
+                        bold('LB'), bold('UB'), bold('LB-CD'), bold('UB-CD')))
+    table_V3.add_hline()
+    table_V3.add_hline()
+
     for s in range(s_l, s_u + 1):
         m_start = s + 1 if s + 1 > m_l else m_l
         for m in range(m_start, m_u + 1):
@@ -93,10 +101,12 @@ def write_file(m_l=3, m_u=70, s_l=3, s_u=60):
                 lb = ''
                 lb_cd = ''
                 ub_cd = ''
+                used_gaps = False
                 try:
                     if procedures.getProcedures(m, s, ub):
                         open_prob = ''
                     else:
+                        used_gaps = True
                         lb = Fraction(ub.numerator - 1, ub.denominator)
                         lb = lb if lb > Fraction(1, 3) else Fraction(1, 3)
                         lb, lb_type = closer_bounds(m, s, lb, ub)
@@ -122,6 +132,15 @@ def write_file(m_l=3, m_u=70, s_l=3, s_u=60):
                 if len(open_prob) > 0 or ans_types != 'Floor-Ceiling':
                     table_non_FC.add_row(row)
                     table_non_FC.add_hline()
+                V, _, _ = calcSv(m, s)
+                if V == 3:
+                    if not used_gaps:
+                        _, ans_types_all = f(m, s, bigrun=False)
+                        ans_types_all_str = functools.reduce(lambda a, b: a + ',' + str(b), ans_types)
+                        row = (m, s, ans_types_all_str, open_prob, str(lb), str(ub), lb_cd, ub_cd)
+                    table_V3.add_row(row)
+                    table_V3.add_hline()
+
 
     doc.append(table)
     doc.generate_pdf('bigrun/BIGRUN', clean_tex=False)
@@ -129,6 +148,8 @@ def write_file(m_l=3, m_u=70, s_l=3, s_u=60):
     doc_open.generate_pdf('bigrun/BIGRUN_opens', clean_tex=False)
     doc_non_FC.append(table_non_FC)
     doc_non_FC.generate_pdf('bigrun/BIGRUN_non_FC', clean_tex=False)
+    doc_V3.append(table_V3)
+    doc_V3.generate_pdf('bigrun/BIGRUN_V3', clean_tex=False)
 
 
 # define gcd function
