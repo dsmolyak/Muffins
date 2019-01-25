@@ -2,7 +2,6 @@ from fractions import Fraction
 import math
 from pulp import *
 import functools
-from procedure import BuddyMatch
 
 
 def calcSv(m, s):
@@ -319,44 +318,49 @@ def mid(m, s):
     return min(v_alphas)
 
 
-def fbm(m, s):
+def ebm(m, s):
     V, sv, sv1 = calcSv(m, s)
     if V >= 4:
         return 1
     d = m - s
     k = int(s / (3 * d)) if s % (3 * d) != 0 else int(s / (3 * d)) - 1
     a = s - 3 * d * k
-    if a >= 2 * d:
+    if a == 2 * d:
+        return 1
+    if a > 2 * d:
         return Fraction(1, 3)
-    elif a <= a <= 2 * d - 1:
+    else:
         X = min(Fraction(a, 2), Fraction(a + d, 4))
         return Fraction(d * k + X, 3 * d * k + a)
-    elif a == 2 * d:
-        return 1
-    else:
-        return 1
 
 
 def cond(X, a, d):
-    return Fraction(a, 3) <= X <= min(Fraction(a, 2), Fraction(a + d, 4))
+    return Fraction(a, 3) <= X < min(Fraction(a, 2), Fraction(a + d, 4))
 
 
-def cbm(m, s):
+def hbm(m, s):
     V, sv, sv1 = calcSv(m, s)
     if V >= 4:
         return 1
     d = m - s
     k = int(s / (3 * d)) if s % (3 * d) != 0 else int(s / (3 * d)) - 1
     a = s - 3 * d * k
-    if a >= 2 * d:
-        return 1
-    y1 = max(Fraction(a + 2 * d, 6), Fraction(3 * a - 2 * d, 4), Fraction(2 * a - d, 3))
-    x1 = y1 if cond(y1, a, d) else 1
-    y2 = max(Fraction(2 * a - d, 3), Fraction(a + d, 5))
-    x2 = y2 if cond(y2, a, d) and a != d else 1
+    bad = 2 * d * k + a
+    y1 = max(Fraction(a + 2 * d, 6), Fraction(2 * a - d, 3))
+    x1 = y1 if cond(y1, a, d) else bad
+    y2 = max( Fraction(a + d, 5), Fraction(2 * a - d, 3), Fraction(d, 2))
+    x2 = y2 if cond(y2, a, d) and a != d else bad
     y3 = max(Fraction(3 * a - 2 * d, 4), Fraction(a + 2 * d, 6))
-    x3 = y3 if cond(y3, a, d) and 5 * a != 7 * d else 1
-    return Fraction(d * k + min(x1, x2, x3), 3 * d * k + a)
+    x3 = y3 if cond(y3, a, d) and 5 * a != 7 * d else bad
+    y4 = max(a - d, Fraction(a + 2 * d, 6))
+    x4 = y4 if cond(y4, a, d) else bad
+    y5 = max(Fraction(2 * a - d, 3), Fraction(d, 2))
+    x5 = y5 if cond(y5, a, d) and a != d else bad
+    y6 = max(Fraction(3 * a - 2 * d, 4), Fraction(a + d, 5), Fraction(d, 2))
+    x6 = y6 if cond(y6, a, d) and (a <= d - 1 or 7 * d <= 5 * a - 1) else bad
+    y7 = max(Fraction(2 * a - d, 3), Fraction(a + d, 5))
+    x7 = y7 if cond(y7, a, d) and a != d else bad
+    return Fraction(d * k + min(x1, x2, x3, x4, x5, x6, x7), 3 * d * k + a)
 
 
 def f(m, s):
@@ -365,11 +369,11 @@ def f(m, s):
     dkp, dkp_type = find_dkp(m, s)
     h = half(m, s)
     mi = mid(m, s)
-    fb = fbm(m, s) if calcSv(m, s)[0] == 3 else 1
-    cb = cbm(m, s) if calcSv(m, s)[0] == 3 else 1
-    results = [fc, h, dk, dkp, mi, fb, cb]
+    eb = ebm(m, s) if calcSv(m, s)[0] == 3 else 1
+    hb = hbm(m, s) if calcSv(m, s)[0] == 3 else 1
+    results = [fc, h, dk, dkp, mi, eb, hb]
     ans = min(results)
-    result_types = ['FC', 'HALF', dk_type, dkp_type, 'MID', 'FBM', 'CBM']
+    result_types = ['FC', 'HALF', dk_type, dkp_type, 'MID', 'EBM', 'HBM']
     ans_types = [result_types[i] for i in range(len(results)) if results[i] == ans]
     return ans, ans_types
 
