@@ -2,6 +2,31 @@ from fractions import Fraction
 import math
 from pulp import *
 import functools
+import time
+
+from functools import wraps
+import errno
+import os
+import signal
+
+
+def timeout(seconds=10, error_message=os.strerror(errno.ETIME)):
+    def decorator(func):
+        def _handle_timeout(signum, frame):
+            raise TimeoutError(error_message)
+
+        def wrapper(*args, **kwargs):
+            signal.signal(signal.SIGALRM, _handle_timeout)
+            signal.alarm(seconds)
+            try:
+                result = func(*args, **kwargs)
+            finally:
+                signal.alarm(0)
+            return result
+
+        return wraps(func)(wrapper)
+
+    return decorator
 
 
 def calcSv(m, s):
@@ -279,6 +304,7 @@ def vmid(m, s, alpha):
         return status != 1
 
 
+@timeout(3, os.strerror(errno.ETIMEDOUT))
 def mid(m, s):
     V, sv, sv1 = calcSv(m, s)
     frac_ms = Fraction(m, s)
@@ -371,7 +397,17 @@ def f(m, s, bigrun=True):
     dk, dk_type = find_dk(m, s)
     dkp, dkp_type = find_dkp(m, s)
     h = half(m, s)
-    mi = mid(m, s)
+    start = time.time()
+    try:
+        V, _, _ = calcSv(m, s)
+        if V <= 8:
+            mi = mid(m, s)
+        else:
+            mi = 1
+    except TimeoutError:
+        print('mid timed out')
+        mi = 1
+
     ebm_ans, ebm_types = 1, ''
     hbm_ans, hbm_types = 1, ''
     if calcSv(m, s)[0] == 3:
@@ -391,6 +427,6 @@ def f(m, s, bigrun=True):
 
 
 if __name__ == '__main__':
-    m = 4
+    m = 59
     s = 3
     print(f(m, s))

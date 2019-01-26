@@ -129,7 +129,7 @@ def write_file(m_l=3, m_u=70, s_l=3, s_u=60):
                 if len(open_prob) > 0:
                     table_open.add_row(row)
                     table_open.add_hline()
-                if len(open_prob) > 0 or ans_types != 'Floor-Ceiling':
+                if len(open_prob) > 0 or ans_types != 'FC':
                     table_non_FC.add_row(row)
                     table_non_FC.add_hline()
                 V, _, _ = calcSv(m, s)
