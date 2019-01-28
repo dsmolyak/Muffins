@@ -356,9 +356,13 @@ def ebm(m, s):
     if a > 2 * d:
         return Fraction(1, 3), ['EBM-1']
     else:
-        xs = [Fraction(a, 2), Fraction(a + d, 4)]
-        X = min(xs)
-        return Fraction(d * k + X, 3 * d * k + a), ['HBM-%d' % (i + 1) for i in range(len(xs)) if xs[i] == X]
+        X = min(Fraction(a, 2), Fraction(a + d, 4))
+        if X == Fraction(a, 2):
+            return Fraction(d * k + X, 3 * d * k + a), 'EBM-2'
+        else:
+            print(X)
+            print(Fraction(d * k + X, 3 * d * k + a))
+            return Fraction(d * k + X, 3 * d * k + a), 'EBM-3'
 
 
 def cond(X, a, d):
@@ -380,7 +384,7 @@ def hbm(m, s):
     y3 = max(Fraction(3 * a - 2 * d, 4), Fraction(a + 2 * d, 6))
     x3 = y3 if cond(y3, a, d) and 5 * a != 7 * d else bad
     y4 = max(a - d, Fraction(a + 2 * d, 6))
-    x4 = y4 if cond(y4, a, d) else bad
+    x4 = y4 if cond(y4, a, d) and (a < Fraction(7 * d, 5) or a > Fraction(5 * d, 3)) else bad
     y5 = max(Fraction(2 * a - d, 3), Fraction(d, 2))
     x5 = y5 if cond(y5, a, d) and a != d else bad
     y6 = max(Fraction(3 * a - 2 * d, 4), Fraction(a + d, 5), Fraction(d, 2))
@@ -389,7 +393,7 @@ def hbm(m, s):
     x7 = y7 if cond(y7, a, d) and a != d else bad
     xs = [x1, x2, x3, x4, x5, x6, x7]
     ans = min(xs)
-    return Fraction(d * k + ans, 3 * d * k + a), ['HBM-%d' % i for i in range(len(xs)) if xs[i] == ans]
+    return Fraction(d * k + ans, 3 * d * k + a), ['HBM-%d' % (i + 1) for i in range(len(xs)) if xs[i] == ans]
 
 
 def f(m, s, bigrun=True):
@@ -414,10 +418,8 @@ def f(m, s, bigrun=True):
         ebm_ans, ebm_types = ebm(m, s)
         hbm_ans, hbm_types = hbm(m, s)
         if bigrun:
-            ebm_types = ebm_types[0] if len(ebm_types) > 0 else ''
             hbm_types = hbm_types[0] if len(hbm_types) > 0 else ''
         else:
-            ebm_types = functools.reduce(lambda a, b: a + ',' + str(b), ebm_types) if len(ebm_types) > 0 else ''
             hbm_types = functools.reduce(lambda a, b: a + ',' + str(b), hbm_types) if len(hbm_types) > 0 else ''
     results = [fc, h, dk, dkp, mi, ebm_ans, hbm_ans]
     ans = min(results)
@@ -427,6 +429,12 @@ def f(m, s, bigrun=True):
 
 
 if __name__ == '__main__':
-    m = 59
-    s = 3
+    # blah = open('blah.txt', 'r').read().split('\n')
+    # for line in blah:
+    #     m = int(line.split('-')[0])
+    #     s = int(line.split('-')[1])
+    #     print('%d, %d = %s' % (m ,s, str(f(m, s))))
+
+    m = 29
+    s = 27
     print(f(m, s))

@@ -107,7 +107,7 @@ def write_file(m_l=3, m_u=70, s_l=3, s_u=60):
                         open_prob = ''
                     else:
                         used_gaps = True
-                        lb = Fraction(ub.numerator - 1, ub.denominator)
+                        lb = Fraction(ub.numerator - 2, ub.denominator)
                         lb = lb if lb > Fraction(1, 3) else Fraction(1, 3)
                         lb, lb_type = closer_bounds(m, s, lb, ub)
                         if lb_type == 'Open':
@@ -140,7 +140,6 @@ def write_file(m_l=3, m_u=70, s_l=3, s_u=60):
                         row = (m, s, ans_types_all_str, open_prob, str(lb), str(ub), lb_cd, ub_cd)
                     table_V3.add_row(row)
                     table_V3.add_hline()
-
 
     doc.append(table)
     doc.generate_pdf('bigrun/BIGRUN', clean_tex=False)
@@ -177,6 +176,10 @@ def convert_den(lb, ub):
 
 
 def closer_bounds(m, s, lb, ub):
+    verify_result = verify_gaps(m, s, lb.numerator, lb.denominator)
+    if verify_result != 'Open':
+        return lb, verify_result
+    found_lb = False
     for den in range(3, min(550, s*s)):
         for num in range(int(den / 3 - 1), int(den / 2 + 1)):
             curr_frac = Fraction(num, den)
@@ -184,6 +187,7 @@ def closer_bounds(m, s, lb, ub):
                 print(curr_frac)
                 try:
                     if procedures.getProcedures(m, s, curr_frac):
+                        found_lb = True
                         res_lb, res_ub = convert_den(curr_frac, ub)
                         print(res_lb, res_ub)
                         lb = curr_frac
@@ -194,7 +198,10 @@ def closer_bounds(m, s, lb, ub):
                     print("no")
                 except KeyError:
                     print("no")
-    return lb, 'Open'
+    if found_lb:
+        return lb, 'Open'
+    else:
+        return Fraction(1, 3), 'Open'
 
 
 if __name__ == '__main__':
