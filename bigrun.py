@@ -81,14 +81,14 @@ def write_file(m_l=3, m_u=70, s_l=3, s_u=60):
     table_non_FC = LongTable('|c|c|c|c|c|c|c|c|')
     table_non_FC.add_hline()
     table_non_FC.add_row((bold('M'), bold('S'), bold('Method'), bold('Open?'),
-                        bold('LB'), bold('UB'), bold('LB-CD'), bold('UB-CD')))
+                          bold('LB'), bold('UB'), bold('LB-CD'), bold('UB-CD')))
     table_non_FC.add_hline()
     table_non_FC.add_hline()
 
     table_V3 = LongTable('|c|c|c|c|c|c|c|c|')
     table_V3.add_hline()
     table_V3.add_row((bold('M'), bold('S'), bold('Method'), bold('Open?'),
-                        bold('LB'), bold('UB'), bold('LB-CD'), bold('UB-CD')))
+                      bold('LB'), bold('UB'), bold('LB-CD'), bold('UB-CD')))
     table_V3.add_hline()
     table_V3.add_hline()
 
@@ -129,7 +129,7 @@ def write_file(m_l=3, m_u=70, s_l=3, s_u=60):
                 if len(open_prob) > 0:
                     table_open.add_row(row)
                     table_open.add_hline()
-                if len(open_prob) > 0 or ans_types != 'FC':
+                if len(open_prob) > 0 or 'FC' not in ans_types_str:
                     table_non_FC.add_row(row)
                     table_non_FC.add_hline()
                 V, _, _ = calcSv(m, s)
@@ -151,6 +151,42 @@ def write_file(m_l=3, m_u=70, s_l=3, s_u=60):
     doc_V3.generate_pdf('bigrun/BIGRUN_V3', clean_tex=False)
 
 
+def open_cases():
+    opens = [(67, 21), (69, 32), (61, 19)]
+    lbs = [Fraction(41, 90), Fraction(31, 72), Fraction(313, 684)]
+    for i, case in enumerate(opens):
+        m = case[0]
+        s = case[1]
+        ub, ans_types = f(m, s)
+        open_prob = ''
+        lb = ''
+        lb_cd = ''
+        ub_cd = ''
+        used_gaps = False
+        try:
+            if procedures.getProcedures(m, s, ub):
+                open_prob = ''
+            else:
+                used_gaps = True
+                lb = lbs[i]  # Fraction(ub.numerator - 2, ub.denominator)
+                lb = lb if lb > Fraction(1, 3) else Fraction(1, 3)
+                lb, lb_type = closer_bounds(m, s, lb, ub, max_denom=1000)
+                if lb_type == 'Open':
+                    open_prob = 'Open'
+                    lb_cd, ub_cd = convert_den(lb, ub)
+                else:
+                    ans_types = [lb_type]
+                    ub = lb
+                    lb = ''
+        except procedures.TimeoutError:
+            open_prob = 'Timeout'
+        except KeyError:
+            open_prob = 'Timeout'
+        ans_types_str = functools.reduce(lambda a, b: a + ',' + str(b), ans_types)
+        row = (m, s, ans_types_str, open_prob, str(lb), str(ub), lb_cd, ub_cd)
+        print(row)
+
+
 # define gcd function
 def gcd(x, y):
     while y:
@@ -160,7 +196,7 @@ def gcd(x, y):
 
 
 def lcm(x, y):
-    lcm = (x*y)//gcd(x,y)
+    lcm = (x * y) // gcd(x, y)
     return lcm
 
 
@@ -175,12 +211,12 @@ def convert_den(lb, ub):
     return res_lb, res_ub
 
 
-def closer_bounds(m, s, lb, ub):
+def closer_bounds(m, s, lb, ub, max_denom=1000):
     verify_result = verify_gaps(m, s, lb.numerator, lb.denominator)
     if verify_result != 'Open':
         return lb, verify_result
     found_lb = False
-    for den in range(3, min(550, s*s)):
+    for den in range(3, max_denom):
         for num in range(int(den / 3 - 1), int(den / 2 + 1)):
             curr_frac = Fraction(num, den)
             if lb < curr_frac < ub and den % s == 0:
@@ -214,4 +250,5 @@ if __name__ == '__main__':
         write_file(m_l, m_u, s_l, s_u)
 
     else:
+        # open_cases()
         write_file()

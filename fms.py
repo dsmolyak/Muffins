@@ -354,15 +354,13 @@ def ebm(m, s):
     if a == 2 * d:
         return 1, ''
     if a > 2 * d:
-        return Fraction(1, 3), ['EBM-1']
+        return Fraction(1, 3), 'EBM1'
     else:
         X = min(Fraction(a, 2), Fraction(a + d, 4))
         if X == Fraction(a, 2):
-            return Fraction(d * k + X, 3 * d * k + a), 'EBM-2'
+            return Fraction(d * k + X, 3 * d * k + a), 'EBM2'
         else:
-            print(X)
-            print(Fraction(d * k + X, 3 * d * k + a))
-            return Fraction(d * k + X, 3 * d * k + a), 'EBM-3'
+            return Fraction(d * k + X, 3 * d * k + a), 'EBM3'
 
 
 def cond(X, a, d):
@@ -393,13 +391,14 @@ def hbm(m, s):
     x7 = y7 if cond(y7, a, d) and a != d else bad
     xs = [x1, x2, x3, x4, x5, x6, x7]
     ans = min(xs)
-    return Fraction(d * k + ans, 3 * d * k + a), ['HBM-%d' % (i + 1) for i in range(len(xs)) if xs[i] == ans]
+    return Fraction(d * k + ans, 3 * d * k + a), ['HBM%d' % (i + 1) for i in range(len(xs)) if xs[i] == ans]
 
 
 def f(m, s, bigrun=True):
     fc = floor_ceiling(m, s)
-    dk, dk_type = find_dk(m, s)
-    dkp, dkp_type = find_dkp(m, s)
+    dk, _ = find_dk(m, s)
+    dkp, _ = find_dkp(m, s)
+    inter = min(dk, dkp)
     h = half(m, s)
     start = time.time()
     try:
@@ -421,20 +420,14 @@ def f(m, s, bigrun=True):
             hbm_types = hbm_types[0] if len(hbm_types) > 0 else ''
         else:
             hbm_types = functools.reduce(lambda a, b: a + ',' + str(b), hbm_types) if len(hbm_types) > 0 else ''
-    results = [fc, h, dk, dkp, mi, ebm_ans, hbm_ans]
+    results = [fc, h, inter, mi, ebm_ans, hbm_ans]
     ans = min(results)
-    result_types = ['FC', 'HALF', dk_type, dkp_type, 'MID', ebm_types, hbm_types]
+    result_types = ['FC', 'HALF', 'INT', 'MID', ebm_types, hbm_types]
     ans_types = [result_types[i] for i in range(len(results)) if results[i] == ans]
     return ans, ans_types
 
 
 if __name__ == '__main__':
-    # blah = open('blah.txt', 'r').read().split('\n')
-    # for line in blah:
-    #     m = int(line.split('-')[0])
-    #     s = int(line.split('-')[1])
-    #     print('%d, %d = %s' % (m ,s, str(f(m, s))))
-
-    m = 29
-    s = 27
+    m = 54
+    s = 47
     print(f(m, s))
