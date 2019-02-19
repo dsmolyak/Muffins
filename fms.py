@@ -2,12 +2,37 @@ from fractions import Fraction
 import math
 from pulp import *
 import functools
-import time
 
 from functools import wraps
 import errno
 import os
 import signal
+
+
+def factor(n):
+    # returns a list containing factors that aren't 1 or n
+    # e.g. factor(12) returns [2, 3, 4, 6]
+    res = []
+    high = int(math.ceil(math.sqrt(n)))
+    for i in range(2, high + 1):
+        if n % i == 0:
+            res.append(i)
+            div = n / i
+            if div != i:
+                res.append(int(div))
+    return res
+
+
+def relatively_prime(m, s):
+    if m % s == 0:
+        return False
+    else:
+        l1 = factor(m)
+        l2 = factor(s)
+        for item in l1:
+            if item in l2:
+                return False
+    return True
 
 
 def timeout(seconds=10, error_message=os.strerror(errno.ETIME)):
@@ -351,7 +376,7 @@ def ebm(m, s):
     d = m - s
     k = int(s / (3 * d)) if s % (3 * d) != 0 else int(s / (3 * d)) - 1
     a = s - 3 * d * k
-    if a == 2 * d:
+    if a == 2 * d or a == d or a >= 3 * d - 1:
         return 1, ''
     if a > 2 * d:
         return Fraction(1, 3), 'EBM1'
@@ -370,7 +395,7 @@ def cond(X, a, d):
 def hbm(m, s):
     V, sv, sv1 = calcSv(m, s)
     if V >= 4:
-        return 1
+        return 1, ''
     d = m - s
     k = int(s / (3 * d)) if s % (3 * d) != 0 else int(s / (3 * d)) - 1
     a = s - 3 * d * k
@@ -378,31 +403,57 @@ def hbm(m, s):
     y1 = max(Fraction(a + 2 * d, 6), Fraction(2 * a - d, 3))
     x1 = y1 if cond(y1, a, d) else bad
     y2 = max(Fraction(a + d, 5), Fraction(2 * a - d, 3), Fraction(d, 2))
-    x2 = y2 if cond(y2, a, d) and a != d else bad
+    x2 = y2 if cond(y2, a, d) and (a != 1 or d != 1) else bad
     y3 = max(Fraction(3 * a - 2 * d, 4), Fraction(a + 2 * d, 6))
     x3 = y3 if cond(y3, a, d) and 5 * a != 7 * d else bad
     y4 = max(a - d, Fraction(a + 2 * d, 6))
     x4 = y4 if cond(y4, a, d) and (a < Fraction(7 * d, 5) or a > Fraction(5 * d, 3)) else bad
     y5 = max(Fraction(2 * a - d, 3), Fraction(d, 2))
-    x5 = y5 if cond(y5, a, d) and a != d else bad
+    x5 = y5 if cond(y5, a, d) and (a != 1 or d != 1) else bad
     y6 = max(Fraction(3 * a - 2 * d, 4), Fraction(a + d, 5), Fraction(d, 2))
-    x6 = y6 if cond(y6, a, d) and (a <= d - 1 or 7 * d <= 5 * a - 1) else bad
+    x6 = y6 if cond(y6, a, d) and (a < d or a > Fraction(7 * d, 5)) else bad
     y7 = max(Fraction(2 * a - d, 3), Fraction(a + d, 5))
-    x7 = y7 if cond(y7, a, d) and a != d else bad
+    x7 = y7 if cond(y7, a, d) and (a != 1 or d != 1) else bad
     xs = [x1, x2, x3, x4, x5, x6, x7]
     ans = min(xs)
     return Fraction(d * k + ans, 3 * d * k + a), ['HBM%d' % (i + 1) for i in range(len(xs)) if xs[i] == ans]
 
 
-def f(m, s, bigrun=True):
+def vhbm(m, s):
+    V, sv, sv1 = calcSv(m, s)
+    if V >= 4:
+        return 1, ''
+    d = m - s
+    k = int(s / (3 * d)) if s % (3 * d) != 0 else int(s / (3 * d)) - 1
+    a = s - 3 * d * k
+    # print(k)
+    if k < 2:
+        return 1, ''
+    bad = 2 * d * k + a
+    y1 = Fraction(a + 2 * d, 6)
+    x1 = y1 if cond(y1, a, d) and a < Fraction(7 * d, 5) else bad
+    y2 = max(a - d, Fraction(a + d, 5), Fraction(d, 2))
+    x2 = y2 if cond(y2, a, d) and (d > a or a > Fraction(7 * d, 3)) else bad
+    y3 = max(Fraction(3 * a - 2 * d, 4), Fraction(d, 2))
+    x3 = y3 if cond(y3, a, d) and (a < Fraction(d, 2) or a > Fraction(7 * d, 5)) else bad
+    y4 = max(Fraction(a + d, 5), Fraction(3 * a - 2 * d, 4))
+    x4 = y4 if cond(y4, a, d) and (a < Fraction(d, 2) or a > Fraction(7 * d, 5)) else bad
+    y5 = max(Fraction(2 * a - d, 3), Fraction(a + 2 * d, 8))
+    x5 = y5 if cond(y5, a, d) and (a < Fraction(d, 3) or a > d) else bad
+
+    xs = [x1, x2, x3, x4, x5]
+    ans = min(xs)
+    return Fraction(d * k + ans, 3 * d * k + a), ['VHBM%d' % (i + 1) for i in range(len(xs)) if xs[i] == ans]
+
+
+def f(m, s, bigrun=False):
     fc = floor_ceiling(m, s)
     dk, _ = find_dk(m, s)
     dkp, _ = find_dkp(m, s)
     inter = min(dk, dkp)
     h = half(m, s)
-    start = time.time()
+    V, _, _ = calcSv(m, s)
     try:
-        V, _, _ = calcSv(m, s)
         if V <= 8:
             mi = mid(m, s)
         else:
@@ -413,21 +464,26 @@ def f(m, s, bigrun=True):
 
     ebm_ans, ebm_types = 1, ''
     hbm_ans, hbm_types = 1, ''
-    if calcSv(m, s)[0] == 3:
+    vhbm_ans, vhbm_types = 1, ''
+    if V == 3:
         ebm_ans, ebm_types = ebm(m, s)
         hbm_ans, hbm_types = hbm(m, s)
-        if bigrun:
-            hbm_types = hbm_types[0] if len(hbm_types) > 0 else ''
-        else:
-            hbm_types = functools.reduce(lambda a, b: a + ',' + str(b), hbm_types) if len(hbm_types) > 0 else ''
-    results = [fc, h, inter, mi, ebm_ans, hbm_ans]
+        vhbm_ans, vhbm_types = vhbm(m, s)
+        hbm_types = hbm_types[0] if len(hbm_types) > 0 else ''
+        vhbm_types = vhbm_types[0] if len(vhbm_types) > 0 else ''
+    results = [fc, h, inter, mi, ebm_ans, hbm_ans, vhbm_ans]
     ans = min(results)
-    result_types = ['FC', 'HALF', 'INT', 'MID', ebm_types, hbm_types]
+    result_types = ['FC', 'HALF', 'INT', 'MID', ebm_types, hbm_types, vhbm_types]
     ans_types = [result_types[i] for i in range(len(results)) if results[i] == ans]
-    return ans, ans_types
+    if not bigrun:
+        return ans, ans_types
+    else:
+        return ans, ans_types, results
 
 
 if __name__ == '__main__':
-    m = 54
-    s = 47
+    m = 11
+    s = 9
+    print(vhbm(m, s))
+    print(hbm(m, s))
     print(f(m, s))
