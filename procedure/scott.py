@@ -11,7 +11,6 @@ def scott(muffins, majors, minors):
     The value of each muffin is Vm, the value of majors are Vs1 and likewise for minors (meaning e.g. each major
     recieves Vs1 total muffin). Furthermore, Vs1/Ps1 <= Vs2/Ps2.
     Find way of doing this so smallest piece is as large as possible.
-
     The following algorithm is (my best guess at figuring out) an algorithm created by Scott Huddleston from California.
     As far as we can tell, no one knows why it works. Furthermore, and again no one knows why, but the results of the
     algorithm are also optimal results for the traditional muffin problem.
@@ -135,7 +134,18 @@ def scott(muffins, majors, minors):
         return muffinPieces, minorPieces, majorPieces
 
 
-def f(m, s, justValue=False):  # put it all together and calculate f(m,s)
+def checkProcedure(muffins, students, m, s):
+    piecesSame = sorted([p for m in muffins for p in m]) == sorted([p for s in students for p in s])
+    for muffin in muffins:
+        if sum(muffin) != 1:
+            return False
+    for student in students:
+        if sum(student) != Fraction(m, s):
+            return False
+    return piecesSame and len(muffins) == m and len(students) == s
+
+
+def f(m, s, justValue=False, returnProcedure=False, checkCorrect=False):  # put it all together and calculate f(m,s)
     if m <= s:
         print("scott's algorithm only works for m>s")
         return
@@ -147,8 +157,17 @@ def f(m, s, justValue=False):  # put it all together and calculate f(m,s)
     # sV are majors, sVm1 are minors
     muffins, majors, minors = scott((m, Fraction(1), Fraction(2)), (sV, m / s, V), (sVm1, m / s, V - 1))
 
+    if checkCorrect:
+        if checkProcedure(muffins, majors + minors, m, s):
+            print("procedure is correct")
+        else:
+            print("procedure is not valid!!")
+
     if justValue:
         return min([piece for muffin in muffins for piece in muffin])
+
+    if returnProcedure:
+        return (muffins, majors, minors)
 
     if muffins[0][0] < Fraction(1, 3):
         print("scott's algorithm only works if f(m,s) > 1/3")
@@ -199,7 +218,7 @@ def deconstructLchain(pieces, Pm, Ps2, Vm, Vs2, L):
         (restOfMuffins, restOfStudents) = deconstructLchain(newPieces, Pm, Ps2, Vm, Vs2,
                                                             L - 1)  # calculate the answer for smaller chain
 
-        return (muffins + restOfMuffins, [student] + restOfStudents)
+        return muffins + restOfMuffins, [student] + restOfStudents
 
 
 def divide_chunks(l, n):  # divide a list into equal sized pieces

@@ -3,9 +3,11 @@ from fms import f
 from fms import calcSv
 from procedures import getProcedures
 from bigrun import closer_bounds
+from bigrun import checkProc
 import functools
 from fractions import Fraction
 from diagrams import make_diagram
+from procedure import scott
 
 
 def gen_proof(m, s, ans, ans_types):
@@ -28,14 +30,19 @@ def gen_proof(m, s, ans, ans_types):
                 print('We know that a = %d, and d = %d.' % (a, d))
 
 
+
+
+
+
 if __name__ == '__main__':
     if len(sys.argv) == 3:
         m = int(sys.argv[1])
         s = int(sys.argv[2])
+        findProc = bool(sys.argv[3]) if len(sys.argv > 3) else False
         ub, ub_types = f(m, s)
 
-        if getProcedures(m, s, ub):
-            getProcedures(m, s, ub, True)
+        if checkProc(findProc, m, s, ub):
+            getProcedures(m, s, ub, True) if findProc else scott.f(m, s)
 
             print('\nFor m = %d and s = %d, f(m,s) has lower bound %s, as there exists a '
                   'procedure for cutting m muffins for s students such that the smallest '
@@ -49,9 +56,9 @@ if __name__ == '__main__':
             print('\nAttempting the following lower bounds:')
             lb = Fraction(ub.numerator - 1, ub.denominator)
             lb = lb if lb > Fraction(1, 3) else Fraction(1, 3)
-            lb, lb_type = closer_bounds(m, s, lb, ub)
+            lb, lb_type = closer_bounds(m, s, lb, ub, findProc)
 
-            getProcedures(m, s, lb, True)
+            getProcedures(m, s, ub, True) if findProc else scott.f(m, s)
             print('\nFor m = %d and s = %d, f(m,s) has lower bound %s, as there exists a '
                   'procedure for cutting m muffins for s students such that the smallest '
                   'piece is at least %s.' % (m, s, lb, lb))

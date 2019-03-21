@@ -1,17 +1,14 @@
 from pylatex import Document, LongTable
 from pylatex.utils import bold
 from fms import f, calcSv, relatively_prime
+from procedure import scott
 import procedures
-import math
 from fractions import Fraction
 import sys
 from gaps import MuffinsAuto
 import functools
 import csv
 import pandas as pd
-
-
-
 
 
 def verify_gaps(m, s, numer, denom):
@@ -37,7 +34,7 @@ def verify_gaps(m, s, numer, denom):
             return 'Open'
 
 
-def write_file(m_l=3, m_u=70, s_l=3, s_u=60):
+def write_file(m_l=3, m_u=70, s_l=3, s_u=60, findProc=False):
     doc = Document('BIGRUN_ALL')
     doc_one = Document('BIGRUN_ONE')
     doc_open = Document('Open')
@@ -91,15 +88,6 @@ def write_file(m_l=3, m_u=70, s_l=3, s_u=60):
     csv_writer = csv.writer(bigrun_csv)
     csv_writer.writerow(['M', 'S', 'FC', 'HALF', 'INT', 'MID', 'EBM', 'HBM', 'VHBM'])
 
-    fms_df = pd.read_csv('data/bigrun.csv')
-    result_map = {}
-    for i, row in fms_df.iterrows():
-        m = row['m']
-        s = row['s']
-        ans = Fraction(int(row['ans'].split('/')[0]), int(row['ans'].split('/')[1]))
-        ans_type = row['type']
-        result_map[(m, s)] = ans, ans_type
-
     for s in range(s_l, s_u + 1):
         m_start = s + 1 if s + 1 > m_l else m_l
         for m in range(m_start, m_u + 1):
@@ -112,7 +100,7 @@ def write_file(m_l=3, m_u=70, s_l=3, s_u=60):
                 ub_cd = ''
                 used_gaps = False
                 try:
-                    if ((m, s) in result_map and result_map[(m, s)][0] == ub) or procedures.getProcedures(m, s, ub):
+                    if checkProc(findProc, m, s, ub):
                         open_prob = ''
                     else:
                         used_gaps = True
@@ -171,8 +159,7 @@ def write_file(m_l=3, m_u=70, s_l=3, s_u=60):
 
 
 def open_cases():
-    opens = [(67, 21), (69, 32), (61, 19)]
-    lbs = [Fraction(41, 90), Fraction(31, 72), Fraction(313, 684)]
+    opens = [(67, 21), (69, 32)]
     for i, case in enumerate(opens):
         m = case[0]
         s = case[1]
@@ -182,25 +169,20 @@ def open_cases():
         lb_cd = ''
         ub_cd = ''
         used_gaps = False
-        try:
-            if procedures.getProcedures(m, s, ub):
-                open_prob = ''
+        if max(Fraction(1, 3), scott.f(m, s, True)) == ub:
+            open_prob = ''
+        else:
+            used_gaps = True
+            lb = Fraction(ub.numerator - 2, ub.denominator)
+            lb = lb if lb > Fraction(1, 3) else Fraction(1, 3)
+            lb, lb_type = closer_bounds(m, s, lb, ub, max_denom=2000)
+            if lb_type == 'Open':
+                open_prob = 'Open'
+                lb_cd, ub_cd = convert_den(lb, ub)
             else:
-                used_gaps = True
-                lb = lbs[i]  # Fraction(ub.numerator - 2, ub.denominator)
-                lb = lb if lb > Fraction(1, 3) else Fraction(1, 3)
-                lb, lb_type = closer_bounds(m, s, lb, ub, max_denom=1000)
-                if lb_type == 'Open':
-                    open_prob = 'Open'
-                    lb_cd, ub_cd = convert_den(lb, ub)
-                else:
-                    ans_types = [lb_type]
-                    ub = lb
-                    lb = ''
-        except procedures.TimeoutError:
-            open_prob = 'Timeout'
-        except KeyError:
-            open_prob = 'Timeout'
+                ans_types = [lb_type]
+                ub = lb
+                lb = ''
         ans_types_str = functools.reduce(lambda a, b: a + ',' + str(b), ans_types)
         row = (m, s, ans_types_str, open_prob, str(lb), str(ub), lb_cd, ub_cd)
         print(row)
@@ -230,7 +212,11 @@ def convert_den(lb, ub):
     return res_lb, res_ub
 
 
-def closer_bounds(m, s, lb, ub, max_denom=750):
+def checkProc(findProc, m, s, ub):
+    return procedures.getProcedures(m, s, ub) if findProc else max(Fraction(1, 3), scott.f(m, s, True)) == ub
+
+
+def closer_bounds(m, s, lb, ub, findProc=False, max_denom=1000):
     verify_result = verify_gaps(m, s, lb.numerator, lb.denominator)
     if verify_result != 'Open':
         return lb, verify_result
@@ -241,7 +227,7 @@ def closer_bounds(m, s, lb, ub, max_denom=750):
             if lb < curr_frac < ub and den % s == 0:
                 print(curr_frac)
                 try:
-                    if procedures.getProcedures(m, s, curr_frac):
+                    if checkProc(findProc, m, s, curr_frac):
                         found_lb = True
                         res_lb, res_ub = convert_den(curr_frac, ub)
                         print(res_lb, res_ub)
@@ -260,7 +246,7 @@ def closer_bounds(m, s, lb, ub, max_denom=750):
 
 
 def to_csv():
-    bigrun_tex = open('bigrun/BIGRUN.tex', 'r').read()
+    bigrun_tex = open('bigrun/BIGRUN_all.tex', 'r').read()
     bigrun_csv = open('data/bigrun.csv', 'w')
     csv_writer = csv.writer(bigrun_csv)
     csv_writer.writerow(['m', 's', 'type', 'ans'])
@@ -305,9 +291,6 @@ def bigrun_new(m_l=3, m_u=70, s_l=3, s_u=60):
     doc_V3.generate_pdf('bigrun/BIGRUN_GAPBM', clean_tex=False)
 
 
-
-
-
 if __name__ == '__main__':
     if len(sys.argv) == 5:
         m = int(sys.argv[1])
@@ -318,4 +301,4 @@ if __name__ == '__main__':
         write_file(m_l, m_u, s_l, s_u)
 
     else:
-        write_file()
+        open_cases()

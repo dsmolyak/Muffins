@@ -2,11 +2,13 @@ from fractions import Fraction
 import math
 from pulp import *
 import functools
+from procedure import scott
 
 from functools import wraps
 import errno
 import os
 import signal
+
 
 
 def factor(n):
@@ -376,16 +378,16 @@ def ebm(m, s):
     d = m - s
     k = int(s / (3 * d)) if s % (3 * d) != 0 else int(s / (3 * d)) - 1
     a = s - 3 * d * k
-    if a == 2 * d or a == d or a >= 3 * d - 1:
-        return 1, ''
-    if a > 2 * d:
+    if a >= 2 * d + 1:
         return Fraction(1, 3), 'EBM1'
-    else:
+    elif a <= 2 * d - 1:
         X = min(Fraction(a, 2), Fraction(a + d, 4))
         if X == Fraction(a, 2):
             return Fraction(d * k + X, 3 * d * k + a), 'EBM2'
         else:
             return Fraction(d * k + X, 3 * d * k + a), 'EBM3'
+    else:
+        return 1, ''
 
 
 def cond(X, a, d):
@@ -471,9 +473,9 @@ def f(m, s, bigrun=False):
         vhbm_ans, vhbm_types = vhbm(m, s)
         hbm_types = hbm_types[0] if len(hbm_types) > 0 else ''
         vhbm_types = vhbm_types[0] if len(vhbm_types) > 0 else ''
-    results = [fc, h, inter, mi, ebm_ans, hbm_ans, vhbm_ans]
+    results = [fc, h, inter, ebm_ans, hbm_ans, vhbm_ans, mi]
     ans = min(results)
-    result_types = ['FC', 'HALF', 'INT', 'MID', ebm_types, hbm_types, vhbm_types]
+    result_types = ['FC', 'HALF', 'INT', ebm_types, hbm_types, vhbm_types, 'MID']
     ans_types = [result_types[i] for i in range(len(results)) if results[i] == ans]
     if not bigrun:
         return ans, ans_types
@@ -482,8 +484,23 @@ def f(m, s, bigrun=False):
 
 
 if __name__ == '__main__':
-    m = 11
-    s = 9
-    print(vhbm(m, s))
-    print(hbm(m, s))
+    m = 16
+    s = 15
     print(f(m, s))
+
+    # s_l = 3
+    # s_u = 100
+    # m_l = 3
+    # m_u = 100
+    # for s in range(s_l, s_u + 1):
+    #     print(s)
+    #     m_start = s + 1 if s + 1 > m_l else m_l
+    #     for m in range(m_start, m_u + 1):
+    #         if relatively_prime(m, s):
+    #             V, sv, sv1 = calcSv(m, s)
+    #             ans, ans_types = f(m, s)
+    #             ans_scott = scott.f(m, s, True)
+    #             if sv * V == sv1 * (V - 1):
+    #                 print(m, s, ans_types)
+    #                 if ans == ans_scott and 'FC' not in ans_types:
+    #                     print(m, s, 'woo')
