@@ -484,8 +484,8 @@ def f(m, s, bigrun=False):
 
 
 if __name__ == '__main__':
-    m = 16
-    s = 15
+    m = 10
+    s = 8
     print(f(m, s))
 
     # s_l = 3

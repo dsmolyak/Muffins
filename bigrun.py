@@ -1,3 +1,5 @@
+import time
+
 from pylatex import Document, LongTable
 from pylatex.utils import bold
 from fms import f, calcSv, relatively_prime
@@ -8,9 +10,33 @@ import sys
 from gaps import MuffinsAuto
 import functools
 import csv
-import pandas as pd
+
+from functools import wraps
+import errno
+import os
+import signal
 
 
+def timeout(seconds=10, error_message=os.strerror(errno.ETIME)):
+    def decorator(func):
+        def _handle_timeout(signum, frame):
+            raise TimeoutError(error_message)
+
+        def wrapper(*args, **kwargs):
+            signal.signal(signal.SIGALRM, _handle_timeout)
+            signal.alarm(seconds)
+            try:
+                result = func(*args, **kwargs)
+            finally:
+                signal.alarm(0)
+            return result
+
+        return wraps(func)(wrapper)
+
+    return decorator
+
+
+@timeout(10, os.strerror(errno.ETIMEDOUT))
 def verify_gaps(m, s, numer, denom):
     with open('output.txt', 'w') as file:
         sys.stdout = file
@@ -259,38 +285,6 @@ def to_csv():
     bigrun_csv.close()
 
 
-def bigrun_new(m_l=3, m_u=70, s_l=3, s_u=60):
-    fms_df = pd.read_csv('data/bigrun.csv')
-    result_map = {}
-    for i, row in fms_df.iterrows():
-        m = row['m']
-        s = row['s']
-        ans = Fraction(int(row['ans'].split('/')[0]), int(row['ans'].split('/')[1]))
-        ans_type = row['type']
-        result_map[(m, s)] = ans, ans_type
-
-    doc_V3 = Document('V3')
-    table_V3 = LongTable('|c|c|c|c|c|c|')
-    table_V3.add_hline()
-    table_V3.add_row((bold('M'), bold('S'), bold('Old Method'), bold('Old Bound'), bold('New Method'), bold('New Bound')))
-    table_V3.add_hline()
-    table_V3.add_hline()
-
-    for s in range(s_l, s_u + 1):
-        m_start = s + 1 if s + 1 > m_l else m_l
-        for m in range(m_start, m_u + 1):
-            V, _, _ = calcSv(m, s)
-            if (m,s) in result_map and relatively_prime(m, s) and V == 3:
-                ub, ans_types = f(m, s)
-                if 'BM' in str(ans_types) and ub < result_map[(m, s)][0]:
-                    row = (m, s, result_map[(m, s)][1], ans_types, result_map[(m, s)][0], str(ub))
-                    print(row)
-                    table_V3.add_row(row)
-                    table_V3.add_hline()
-    doc_V3.append(table_V3)
-    doc_V3.generate_pdf('bigrun/BIGRUN_GAPBM', clean_tex=False)
-
-
 if __name__ == '__main__':
     if len(sys.argv) == 5:
         m = int(sys.argv[1])
@@ -301,4 +295,6 @@ if __name__ == '__main__':
         write_file(m_l, m_u, s_l, s_u)
 
     else:
-        open_cases()
+        start = time.time()
+        verify_gaps(67, 21, 41, 90)
+        print(time.time() - start)
