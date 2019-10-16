@@ -1,5 +1,5 @@
 # Muffins
-Various procedural and algorithmic programs to help solve cases of the Muffin problem
+Various procedural and algorithmic programs to help solve cases of the Muffin problem. Thank you to Jacob Prinz for the procedure finding programs (in the procedure folder), and to Saadiq Shaik for the program using the GAPS method (gaps.py).
 
 ## Setup/Prerequisites
 1. Must be using Python 3 (If Python 3 is not default, replace each occurance below of `python` with `python3` or `python36`)
